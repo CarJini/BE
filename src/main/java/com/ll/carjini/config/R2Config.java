@@ -1,4 +1,4 @@
-package com.ll.demo03.config;
+package com.ll.carjini.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

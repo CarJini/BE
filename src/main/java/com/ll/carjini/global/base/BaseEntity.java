@@ -1,4 +1,4 @@
-package com.ll.demo03.global.base;
+package com.ll.carjini.global.base;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;

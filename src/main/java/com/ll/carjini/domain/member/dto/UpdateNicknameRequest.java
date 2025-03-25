@@ -1,4 +1,4 @@
-package com.ll.demo03.domain.member.dto;
+package com.ll.carjini.domain.member.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

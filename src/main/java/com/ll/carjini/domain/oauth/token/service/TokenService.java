@@ -1,15 +1,10 @@
-package com.ll.demo03.domain.oauth.token.service;
+package com.ll.carjini.domain.oauth.token.service;
 
-import com.ll.demo03.domain.oauth.token.TokenProvider;
-import com.ll.demo03.domain.oauth.token.entity.Token;
-import com.ll.demo03.global.error.ErrorCode;
-import com.ll.demo03.global.exception.CustomException;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.ll.carjini.domain.oauth.token.entity.Token;
+import com.ll.carjini.global.error.ErrorCode;
+import com.ll.carjini.global.exception.CustomException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service

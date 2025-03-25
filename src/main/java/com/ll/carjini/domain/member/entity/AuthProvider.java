@@ -1,4 +1,4 @@
-package com.ll.demo03.domain.member.entity;
+package com.ll.carjini.domain.member.entity;
 
 public enum AuthProvider {
     KAKAO,

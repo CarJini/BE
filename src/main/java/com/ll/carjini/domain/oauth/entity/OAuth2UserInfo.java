@@ -1,13 +1,12 @@
-package com.ll.demo03.domain.oauth.entity;
+package com.ll.carjini.domain.oauth.entity;
 
-import com.ll.demo03.domain.member.entity.AuthProvider;
+import com.ll.carjini.domain.member.entity.AuthProvider;
 import lombok.Builder;
-import com.ll.demo03.domain.member.entity.Member;
-import com.ll.demo03.domain.member.entity.Role;
-import com.ll.demo03.global.error.ErrorCode;
-import com.ll.demo03.global.exception.CustomException;
+import com.ll.carjini.domain.member.entity.Member;
+import com.ll.carjini.domain.member.entity.Role;
+import com.ll.carjini.global.error.ErrorCode;
+import com.ll.carjini.global.exception.CustomException;
 
-import java.util.Collections;
 import java.util.Map;
 
 @Builder

@@ -1,4 +1,4 @@
-package com.ll.demo03.config.websocket;
+package com.ll.carjini.config.websocket;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;

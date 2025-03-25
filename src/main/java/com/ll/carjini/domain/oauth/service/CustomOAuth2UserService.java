@@ -1,13 +1,13 @@
-package com.ll.demo03.domain.oauth.service;
+package com.ll.carjini.domain.oauth.service;
 
-import com.ll.demo03.domain.member.entity.AuthProvider;
-import com.ll.demo03.domain.member.entity.Role;
+import com.ll.carjini.domain.member.entity.AuthProvider;
+import com.ll.carjini.domain.member.entity.Role;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import com.ll.demo03.domain.member.entity.Member;
-import com.ll.demo03.domain.member.repository.MemberRepository;
-import com.ll.demo03.domain.oauth.entity.OAuth2UserInfo;
-import com.ll.demo03.domain.oauth.entity.PrincipalDetails;
+import com.ll.carjini.domain.member.entity.Member;
+import com.ll.carjini.domain.member.repository.MemberRepository;
+import com.ll.carjini.domain.oauth.entity.OAuth2UserInfo;
+import com.ll.carjini.domain.oauth.entity.PrincipalDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -17,7 +17,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 

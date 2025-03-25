@@ -1,16 +1,16 @@
-package com.ll.demo03.domain.oauth.token;
+package com.ll.carjini.domain.oauth.token;
 
-import com.ll.demo03.domain.member.entity.Member;
-import com.ll.demo03.domain.member.repository.MemberRepository;
-import com.ll.demo03.domain.oauth.entity.PrincipalDetails;
-import com.ll.demo03.domain.oauth.token.entity.Token;
-import com.ll.demo03.global.exception.CustomException;
+import com.ll.carjini.domain.member.entity.Member;
+import com.ll.carjini.domain.member.repository.MemberRepository;
+import com.ll.carjini.domain.oauth.entity.PrincipalDetails;
+import com.ll.carjini.domain.oauth.token.entity.Token;
+import com.ll.carjini.global.exception.CustomException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import com.ll.demo03.domain.oauth.token.service.TokenService;
-import com.ll.demo03.global.error.ErrorCode;
+import com.ll.carjini.domain.oauth.token.service.TokenService;
+import com.ll.carjini.global.error.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

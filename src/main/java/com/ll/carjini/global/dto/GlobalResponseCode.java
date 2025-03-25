@@ -1,4 +1,4 @@
-package com.ll.demo03.global.dto;
+package com.ll.carjini.global.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

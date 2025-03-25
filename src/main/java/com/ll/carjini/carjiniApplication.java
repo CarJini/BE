@@ -8,8 +8,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableCaching
 @EnableJpaAuditing
 @SpringBootApplication
-public class carjiniApplication {
+public class CarjiniApplication {
 
-    public static void main (String[] args) {
-        SpringApplication.run(carjiniApplication.class, args);
+    public static void main(String[] args) {
+        SpringApplication.run(CarjiniApplication.class, args);
     }
+}

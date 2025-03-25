@@ -1,14 +1,11 @@
-package com.ll.demo03.domain.member.service;
+package com.ll.carjini.domain.member.service;
 
-import com.ll.demo03.domain.member.dto.MemberDto;
-import com.ll.demo03.global.error.ErrorCode;
-import com.ll.demo03.global.exception.CustomException;
-import jakarta.persistence.EntityNotFoundException;
-import lombok.AllArgsConstructor;
+import com.ll.carjini.domain.member.dto.MemberDto;
+import com.ll.carjini.global.error.ErrorCode;
+import com.ll.carjini.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
-import com.ll.demo03.domain.member.entity.Member;
-import com.ll.demo03.domain.member.repository.MemberRepository;
-import org.springframework.scheduling.annotation.Scheduled;
+import com.ll.carjini.domain.member.entity.Member;
+import com.ll.carjini.domain.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

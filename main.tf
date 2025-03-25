@@ -24,7 +24,7 @@ resource "aws_vpc" "vpc_1" {
   enable_dns_hostnames = true
 
   tags = {
-    Name = "hoit-v3"
+    Name = "carjini-v3"
   }
 }
 
@@ -198,7 +198,7 @@ resource "aws_instance" "ec2_1" {
   # 퍼블릭 IP 연결 설정
   associate_public_ip_address = true
 
-  key_name = "hoit-key"
+  key_name = "carjini-key"
 
   # 인스턴스에 IAM 역할 연결
   iam_instance_profile = aws_iam_instance_profile.instance_profile_1.name

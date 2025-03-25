@@ -1,11 +1,11 @@
-package com.ll.demo03.config.security;
+package com.ll.carjini.config.security;
 
 import org.springframework.beans.factory.annotation.Value;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import com.ll.demo03.domain.oauth.token.TokenProvider;
+import com.ll.carjini.domain.oauth.token.TokenProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -31,14 +31,14 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         accessCookie.setHttpOnly(true);
         accessCookie.setSecure(false);
         accessCookie.setPath("/");
-//        accessCookie.setDomain("hoit.my");
+        accessCookie.setDomain("carjini.shop");
         accessCookie.setMaxAge(3600); // 1시간
 
         Cookie refreshCookie = new Cookie("_hrauth", refreshToken);
         refreshCookie.setHttpOnly(true);
         refreshCookie.setSecure(false);
         refreshCookie.setPath("/");
-//        refreshCookie.setDomain("hoit.my");
+        refreshCookie.setDomain("carjini.shop");
         refreshCookie.setMaxAge(3600); // 1시간
 
         response.addCookie(accessCookie);

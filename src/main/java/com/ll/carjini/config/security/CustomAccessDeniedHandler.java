@@ -1,10 +1,10 @@
-package com.ll.demo03.config.security;
+package com.ll.carjini.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import com.ll.demo03.global.error.ErrorCode;
-import com.ll.demo03.global.error.ErrorResponse;
+import com.ll.carjini.global.error.ErrorCode;
+import com.ll.carjini.global.error.ErrorResponse;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;

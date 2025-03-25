@@ -1,10 +1,8 @@
-package com.ll.demo03.domain.oauth.token.controller;
+package com.ll.carjini.domain.oauth.token.controller;
 
-import com.ll.demo03.domain.oauth.token.TokenProvider;
-import com.ll.demo03.domain.oauth.token.dto.AccessTokenRequest;
-import com.ll.demo03.domain.oauth.token.dto.AccessTokenResponse;
-import com.ll.demo03.domain.oauth.token.service.TokenService;
-import com.ll.demo03.global.dto.GlobalResponse;
+import com.ll.carjini.domain.oauth.token.TokenProvider;
+import com.ll.carjini.domain.oauth.token.dto.AccessTokenRequest;
+import com.ll.carjini.global.dto.GlobalResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;

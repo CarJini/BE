@@ -1,9 +1,9 @@
-package com.ll.demo03.global.exception;
+package com.ll.carjini.global.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import com.ll.demo03.global.error.ErrorCode;
-import com.ll.demo03.global.error.ErrorResponse;
+import com.ll.carjini.global.error.ErrorCode;
+import com.ll.carjini.global.error.ErrorResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;

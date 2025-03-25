@@ -1,4 +1,4 @@
-package com.ll.demo03.global.error;
+package com.ll.carjini.global.error;
 
 
 import lombok.Builder;

@@ -1,6 +1,6 @@
-package com.ll.demo03.domain.member.dto;
+package com.ll.carjini.domain.member.dto;
 
-import com.ll.demo03.domain.member.entity.Member;
+import com.ll.carjini.domain.member.entity.Member;
 import lombok.*;
 
 @Getter

@@ -1,15 +1,13 @@
-package com.ll.demo03.domain.member.controller;
+package com.ll.carjini.domain.member.controller;
 
-import com.ll.demo03.domain.member.dto.UpdateNicknameRequest;
-import com.ll.demo03.domain.member.entity.Member;
-import com.ll.demo03.domain.member.service.MemberService;
-import com.ll.demo03.domain.oauth.entity.PrincipalDetails;
+import com.ll.carjini.domain.member.dto.UpdateNicknameRequest;
+import com.ll.carjini.domain.member.entity.Member;
+import com.ll.carjini.domain.member.service.MemberService;
+import com.ll.carjini.domain.oauth.entity.PrincipalDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import com.ll.demo03.domain.member.dto.MemberDto;
-import com.ll.demo03.global.dto.GlobalResponse;
+import com.ll.carjini.domain.member.dto.MemberDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

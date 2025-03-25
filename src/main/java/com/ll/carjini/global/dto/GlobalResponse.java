@@ -1,7 +1,7 @@
-package com.ll.demo03.global.dto;
+package com.ll.carjini.global.dto;
 
 import lombok.Getter;
-import com.ll.demo03.global.error.ErrorCode;
+import com.ll.carjini.global.error.ErrorCode;
 
 import java.time.LocalDateTime;
 

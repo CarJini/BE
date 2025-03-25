@@ -1,7 +1,7 @@
-package com.ll.demo03.domain.oauth.token;
+package com.ll.carjini.domain.oauth.token;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ll.demo03.global.error.ErrorCode;
+import com.ll.carjini.global.error.ErrorCode;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
-import com.ll.demo03.global.error.ErrorResponse;
+import com.ll.carjini.global.error.ErrorResponse;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,8 +19,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RequiredArgsConstructor
 @Component

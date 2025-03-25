@@ -1,4 +1,4 @@
-package com.ll.demo03.config;
+package com.ll.carjini.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

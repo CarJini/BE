@@ -1,10 +1,10 @@
-package com.ll.demo03.domain.oauth.token;
+package com.ll.carjini.domain.oauth.token;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import com.ll.demo03.global.error.ErrorCode;
-import com.ll.demo03.global.exception.CustomException;
+import com.ll.carjini.global.error.ErrorCode;
+import com.ll.carjini.global.exception.CustomException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 public class TokenExceptionFilter extends OncePerRequestFilter {

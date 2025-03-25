@@ -1,4 +1,4 @@
-package com.ll.demo03.domain.oauth.token.dto;
+package com.ll.carjini.domain.oauth.token.dto;
 
 import lombok.Getter;
 import lombok.Setter;

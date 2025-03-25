@@ -1,4 +1,4 @@
-package com.ll.demo03.global.springDoc;
+package com.ll.carjini.global.springDoc;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

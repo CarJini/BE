@@ -1,8 +1,8 @@
-package com.ll.demo03.global.exception;
+package com.ll.carjini.global.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import com.ll.demo03.global.error.ErrorCode;
+import com.ll.carjini.global.error.ErrorCode;
 
 @Getter
 @AllArgsConstructor

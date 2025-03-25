@@ -1,4 +1,4 @@
-package com.ll.demo03.domain.oauth.token.entity;
+package com.ll.carjini.domain.oauth.token.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

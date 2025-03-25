@@ -1,13 +1,11 @@
-package com.ll.demo03.domain.member.entity;
+package com.ll.carjini.domain.member.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import com.ll.demo03.global.base.BaseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
-import com.ll.demo03.domain.member.entity.AuthProvider;
+import com.ll.carjini.global.base.BaseEntity;
 
 import java.util.Random;
 

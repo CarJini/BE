@@ -11,7 +11,7 @@ spring:
       client:
         registration:
           google:
-            redirect-uri: https://api.hoit.my/auth/google/redirect
+            redirect-uri: https://api.carjini.shop/auth/google/redirect
   lifecycle:
     # 스프링부트가 종료 요청을 받은 후 기다려줄 수 있는 최대한의 시간d
     timeout-per-shutdown-phase: 1h

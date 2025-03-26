@@ -56,10 +56,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request ->
                         request.requestMatchers(
                                 "/",
-                                "/api/shared-images",
-                                        "/api/shared-images/**",
-                                        "/api/images/webhook",
-                                        "/api/upscale-images/webhook",
                                 "/auth/token/verify",
                                 "/ws/**",
                                 "/auth/google/redirect",

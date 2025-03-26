@@ -69,8 +69,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/CarJini/BE:${{ needs.makeTagAndRelease.outputs.tag_name }}
-            ghcr.io/CarJini/BE:latest
+            ghcr.io/carjini/be:${{ needs.makeTagAndRelease.outputs.tag_name }}
+            ghcr.io/carjini/be:latest
   deploy:
     runs-on: ubuntu-latest
     needs: [ buildImageAndPush ]

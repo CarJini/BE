@@ -35,15 +35,6 @@ spring:
         highlight_sql: false
         use_sql_comments: false
         dialect: org.hibernate.dialect.MySQLDialect
-# 🔹 Actuator 설정 추가 (서버 설정 바로 아래 or 최하단)
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "health"  # /actuator/health 활성화
-  endpoint:
-    health:
-      show-details: always  # 상태 확인 시 상세 정보 제공
 logging:
   level:
     com.ll.demo03: INFO

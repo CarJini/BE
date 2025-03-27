@@ -10,10 +10,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SwaggerConfig {
-//
     @Bean
     public OpenAPI customOpenAPI() {
-        // 토큰 인증을 위한 SecurityScheme 설정
         io.swagger.v3.oas.models.security.SecurityScheme securityScheme = new io.swagger.v3.oas.models.security.SecurityScheme()
                 .name("Authorization")
                 .type(SecurityScheme.Type.HTTP)
@@ -21,7 +19,7 @@ public class SwaggerConfig {
                 .bearerFormat("JWT");
 
         return new OpenAPI()
-                .info(new Info().title("StockNote REST API").version("1.0.0"))
+                .info(new Info().title("CarJini REST API").version("1.0.0"))
                 .components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"));
     }

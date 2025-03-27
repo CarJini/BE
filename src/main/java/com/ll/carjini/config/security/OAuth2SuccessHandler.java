@@ -32,14 +32,14 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         accessCookie.setSecure(false);
         accessCookie.setPath("/");
         accessCookie.setDomain("carjini.shop");
-        accessCookie.setMaxAge(3600); // 1시간
+        accessCookie.setMaxAge(3600);
 
         Cookie refreshCookie = new Cookie("_hrauth", refreshToken);
         refreshCookie.setHttpOnly(true);
         refreshCookie.setSecure(false);
         refreshCookie.setPath("/");
         refreshCookie.setDomain("carjini.shop");
-        refreshCookie.setMaxAge(3600); // 1시간
+        refreshCookie.setMaxAge(3600);
 
         response.addCookie(accessCookie);
         response.addCookie(refreshCookie);

@@ -1,6 +1,6 @@
 app:
   client:
-    url: https://carjini.shop
+    url: http://localhost:8081
 server:
   port: 8090
   shutdown: graceful

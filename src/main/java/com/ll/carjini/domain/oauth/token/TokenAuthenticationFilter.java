@@ -46,18 +46,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     }
 
     protected String resolveToken(HttpServletRequest request) {
-        HttpServletRequest originalRequest = (HttpServletRequest) request.getAttribute("originalRequest");
-        if (originalRequest == null) {
-            originalRequest = request;
-        }
-
-        Cookie[] cookies = originalRequest.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("_hoauth".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7); // "Bearer " 부분을 제거하여 실제 토큰 값만 반환
         }
         return null;
     }

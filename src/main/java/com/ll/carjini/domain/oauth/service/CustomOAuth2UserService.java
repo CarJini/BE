@@ -2,7 +2,8 @@ package com.ll.carjini.domain.oauth.service;
 
 import com.ll.carjini.domain.member.entity.AuthProvider;
 import com.ll.carjini.domain.member.entity.Role;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import com.ll.carjini.domain.member.entity.Member;
 import com.ll.carjini.domain.member.repository.MemberRepository;

@@ -1,6 +1,7 @@
 package com.ll.carjini.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +24,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final TokenProvider tokenProvider;
 
     @Value("${app.client.url}")
-    private String redirectUrl;
+    private String defaultRedirectUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -34,14 +35,25 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         System.out.println("OAuth2 인증 성공: " + authentication.getName());
         System.out.println("액세스 토큰 발급 완료: " + accessToken.substring(0, 10) + "...");
 
-        response.setStatus(HttpStatus.OK.value());
-        response.setContentType("application/json;charset=UTF-8");
+        String targetUrl = defaultRedirectUrl;
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            String savedRedirectUrl = (String) session.getAttribute("OAUTH2_REDIRECT_URL");
+            if (savedRedirectUrl != null && !savedRedirectUrl.isEmpty()) {
+                targetUrl = savedRedirectUrl;
+                session.removeAttribute("OAUTH2_REDIRECT_URL");
+            }
+        }
 
-        Map<String, String> tokens = new HashMap<>();
-        tokens.put("accessToken", accessToken);
-        tokens.put("refreshToken", refreshToken);
+        // Check if redirect URL has query parameters
+        String delimiter = targetUrl.contains("?") ? "&" : "?";
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        response.getWriter().write(objectMapper.writeValueAsString(tokens));
+        // Add tokens to the redirect URL
+        String finalRedirectUrl = targetUrl + delimiter +
+                "accessToken=" + accessToken +
+                "&refreshToken=" + refreshToken;
+
+        // Redirect to the client application with tokens
+        response.sendRedirect(finalRedirectUrl);
     }
 }

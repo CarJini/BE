@@ -57,6 +57,7 @@ public class SecurityConfig {
                         request.requestMatchers(
                                 "/",
                                 "/auth/token/verify",
+                                "/api/auth/login/google",
                                 "/ws/**",
                                 "/auth/google/redirect",
                                 "/swagger-ui/**",

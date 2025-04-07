@@ -27,9 +27,6 @@ public class MaintenanceItem extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MaintenanceItemCategory maintenanceItemCategory;
 
-    @Enumerated(EnumType.STRING)
-    private IconColor iconColor;
-
     @Column(nullable = true)
     private Long replacementCycle;
 

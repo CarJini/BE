@@ -51,9 +51,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         log.info("Member found/created: {}", member); // 멤버 정보 확인
 
         PrincipalDetails principalDetails = new PrincipalDetails(member, attributes, userNameAttributeName);
-        log.info("PrincipalDetails created: {}", principalDetails); // PrincipalDetails 생성 확인
-
-        // SecurityContext에 직접 설정
+        log.info("PrincipalDetails created: {}", principalDetails);
         SecurityContextHolder.getContext().setAuthentication(
                 new OAuth2AuthenticationToken(
                         principalDetails,
@@ -65,7 +63,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return principalDetails;
     }
 
-    private Member getOrSave(OAuth2UserInfo oAuth2UserInfo) {
+    public Member getOrSave(OAuth2UserInfo oAuth2UserInfo) {
         return memberRepository.findByEmail(oAuth2UserInfo.email())
                 .map(existingMember -> {
                     // 기존 회원 정보 업데이트가 필요하다면 여기서 수행

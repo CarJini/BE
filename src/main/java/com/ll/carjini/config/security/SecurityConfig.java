@@ -52,10 +52,10 @@ public class SecurityConfig {
                         c.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용하지 않음
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
 
-                // request 인증, 인가 설정
                 .authorizeHttpRequests(request ->
                         request.requestMatchers(
                                 "/",
+                                "auth/google/**",
                                 "/auth/token/verify",
                                 "/api/auth/login/google",
                                 "/ws/**",
@@ -65,22 +65,19 @@ public class SecurityConfig {
                                         "/admin/mypage/**",
                                 "/home/**",
                                 "/actuator/health"
-                                ).permitAll() //
-                .anyRequest().authenticated() //나머지는 인증 필요
+                                ).permitAll()
+                .anyRequest().authenticated()
                 )
 
                 // oauth2 설정
-                .oauth2Login(oauth -> // OAuth2 로그인 기능에 대한 여러 설정의 진입점
-                oauth.userInfoEndpoint(c -> c.userService(oAuth2UserService)) //userInfoEndpoint: OAuth2 로그인 성공 후 사용자 정보를 가져오는 설정. oAuth2UserService를 통해 사용자 정보를 처리합니다.
-                        .successHandler(oAuth2SuccessHandler) //로그인 설정 후 핸들러, oAuth2SuccessHandler에서 후속 작업을 처리
-                        .redirectionEndpoint(endpoint ->
-                                endpoint.baseUri("/auth/google/redirect"))
-                )
+                .oauth2Login(oauth -> {
+                    oauth.userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserService));
+                })
 
                 // jwt 관련 설정
-                .addFilterBefore(tokenAuthenticationFilter, //tokenAuthenticationFilter: JWT 인증을 처리하는 커스텀 필터, 모든 요청에서 토큰을 검사하고 인증 여부를 결정
+                .addFilterBefore(tokenAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new TokenExceptionFilter(), tokenAuthenticationFilter.getClass()) // 토큰 예외 핸들링
+                .addFilterBefore(new TokenExceptionFilter(), tokenAuthenticationFilter.getClass())
 
                 // 인증/인가 예외 핸들링
                 .exceptionHandling((exceptions) -> exceptions

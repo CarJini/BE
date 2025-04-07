@@ -3,7 +3,6 @@ package com.ll.carjini.domain.maintenanceItem.controller;
 import com.ll.carjini.domain.maintenanceItem.dto.MaintenanceItemDetailResponse;
 import com.ll.carjini.domain.maintenanceItem.dto.MaintenanceItemRequest;
 import com.ll.carjini.domain.maintenanceItem.dto.MaintenanceItemResponse;
-import com.ll.carjini.domain.maintenanceItem.entity.IconColor;
 import com.ll.carjini.domain.maintenanceItem.entity.MaintenanceItemCategory;
 import com.ll.carjini.domain.maintenanceItem.service.MaintenanceItemService;
 import com.ll.carjini.domain.oauth.entity.PrincipalDetails;
@@ -67,9 +66,8 @@ public class MaintenanceItemController {
         Long memberId = principalDetails.user().getId();
 
         MaintenanceItemCategory category = MaintenanceItemCategory.valueOf(dto.getMaintenanceItemCategory().toUpperCase());
-        IconColor iconColor = IconColor.valueOf(dto.getIconColor().toUpperCase());
 
-        maintenanceItemService.create(carOwnerId, memberId, dto.getName(), category, iconColor, dto.getReplacementCycle(), dto.getReplacementKm());
+        maintenanceItemService.create(carOwnerId, memberId, dto.getName(), category, dto.getReplacementCycle(), dto.getReplacementKm());
 
         return GlobalResponse.success("정비 항목이 생성되었습니다.");
     }
@@ -87,7 +85,6 @@ public class MaintenanceItemController {
             Long memberId = principalDetails.user().getId();
 
             MaintenanceItemCategory category = MaintenanceItemCategory.valueOf(dto.getMaintenanceItemCategory().toUpperCase());
-            IconColor iconColor = IconColor.valueOf(dto.getIconColor().toUpperCase());
 
            maintenanceItemService.update(
                    carOwnerId,
@@ -95,7 +92,6 @@ public class MaintenanceItemController {
                    id,
                     dto.getName(),
                     category,
-                    iconColor,
                     dto.getReplacementCycle(),
                     dto.getReplacementKm()
             );

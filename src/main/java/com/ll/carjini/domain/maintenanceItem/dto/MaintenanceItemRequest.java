@@ -8,7 +8,6 @@ import lombok.Getter;
 public class MaintenanceItemRequest {
     private String name;
     private String maintenanceItemCategory;
-    private String iconColor;
     private Long replacementCycle; // 교체 기간
     private Long replacementKm;
 }

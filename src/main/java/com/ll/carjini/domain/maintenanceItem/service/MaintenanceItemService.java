@@ -6,7 +6,6 @@ import com.ll.carjini.domain.maintenanceHistory.entity.MaintenanceHistory;
 import com.ll.carjini.domain.maintenanceHistory.repository.MaintenanceHistoryRepository;
 import com.ll.carjini.domain.maintenanceItem.dto.MaintenanceItemDetailResponse;
 import com.ll.carjini.domain.maintenanceItem.dto.MaintenanceItemResponse;
-import com.ll.carjini.domain.maintenanceItem.entity.IconColor;
 import com.ll.carjini.domain.maintenanceItem.entity.MaintenanceItem;
 import com.ll.carjini.domain.maintenanceItem.entity.MaintenanceItemCategory;
 import com.ll.carjini.domain.maintenanceItem.repository.MaintenanceItemRepository;
@@ -46,7 +45,7 @@ public class MaintenanceItemService {
 
     @Transactional
     public MaintenanceItem create(Long carOwnerId, Long memberId, String name, MaintenanceItemCategory category,
-                                  IconColor iconColor, Long replacementCycle, Long replacementKm) {
+                                  Long replacementCycle, Long replacementKm) {
 
         CarOwner carOwner = validateCarOwnerAccess(carOwnerId, memberId);
 
@@ -54,7 +53,6 @@ public class MaintenanceItemService {
                 .carOwner(carOwner)
                 .name(name)
                 .maintenanceItemCategory(category)
-                .iconColor(iconColor)
                 .replacementCycle(replacementCycle)
                 .replacementKm(replacementKm)
                 .build();
@@ -71,7 +69,7 @@ public class MaintenanceItemService {
 
     @Transactional
     public MaintenanceItem update(Long carOwnerId, Long memberId, Long id, String name, MaintenanceItemCategory category,
-                                  IconColor iconColor, Long replacementCycle, Long replacementKm) {
+                                   Long replacementCycle, Long replacementKm) {
 
         CarOwner carOwner = validateCarOwnerAccess(carOwnerId, memberId);
 
@@ -81,7 +79,6 @@ public class MaintenanceItemService {
         item.setCarOwner(carOwner);
         item.setName(name);
         item.setMaintenanceItemCategory(category);
-        item.setIconColor(iconColor);
         item.setReplacementCycle(replacementCycle);
         item.setReplacementKm(replacementKm);
 
@@ -194,22 +191,15 @@ public class MaintenanceItemService {
         );
     }
 
-    // 가장 최근의 유지보수 이력을 가져오는 도움 메서드
     private MaintenanceHistory getLatestMaintenanceHistory(MaintenanceItem item) {
         if (item.getMaintenanceHistories() == null || item.getMaintenanceHistories().isEmpty()) {
             return null;
         }
 
-        // 날짜를 기준으로 정렬하여 가장 최근의 이력 반환
         return item.getMaintenanceHistories().stream()
                 .filter(history -> history.getReplacementDate() != null)
                 .max(Comparator.comparing(MaintenanceHistory::getReplacementDate))
                 .orElse(null);
-
-        // 또는 ID(생성 시간)를 기준으로 정렬하는 방법
-        // return item.getMaintenanceHistories().stream()
-        //        .max(Comparator.comparing(history -> history.getId()))
-        //        .orElse(null);
     }
 
 

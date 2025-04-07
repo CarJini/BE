@@ -62,14 +62,17 @@ public class MaintenanceItemController {
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @RequestBody MaintenanceItemRequest dto,
             @PathVariable Long carOwnerId) {
+        try {
+            Long memberId = principalDetails.user().getId();
 
-        Long memberId = principalDetails.user().getId();
+            MaintenanceItemCategory category = MaintenanceItemCategory.valueOf(dto.getMaintenanceItemCategory().toUpperCase());
 
-        MaintenanceItemCategory category = MaintenanceItemCategory.valueOf(dto.getMaintenanceItemCategory().toUpperCase());
+            maintenanceItemService.create(carOwnerId, memberId, dto.getName(), category, dto.getReplacementCycle(), dto.getReplacementKm());
 
-        maintenanceItemService.create(carOwnerId, memberId, dto.getName(), category, dto.getReplacementCycle(), dto.getReplacementKm());
-
-        return GlobalResponse.success("정비 항목이 생성되었습니다.");
+            return GlobalResponse.success("정비 항목이 생성되었습니다.");
+        }catch(Exception e){
+            throw new CustomException(ErrorCode.ENTITY_NOT_FOUND);
+        }
     }
 
 

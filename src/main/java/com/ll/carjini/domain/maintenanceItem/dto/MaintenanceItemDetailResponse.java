@@ -2,8 +2,10 @@ package com.ll.carjini.domain.maintenanceItem.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
 public class MaintenanceItemDetailResponse {
     private String name;                 // 항목 이름

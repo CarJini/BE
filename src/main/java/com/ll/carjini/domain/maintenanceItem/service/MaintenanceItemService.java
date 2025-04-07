@@ -57,6 +57,8 @@ public class MaintenanceItemService {
                 .replacementKm(replacementKm)
                 .build();
 
+        maintenanceItem = maintenanceItemRepository.save(maintenanceItem);
+
         MaintenanceHistory maintenanceHistory = MaintenanceHistory.builder()
                 .maintenanceItem(maintenanceItem)
                 .carOwner(carOwner)
@@ -64,7 +66,7 @@ public class MaintenanceItemService {
 
         maintenanceHistoryRepository.save(maintenanceHistory);
 
-        return maintenanceItemRepository.save(maintenanceItem);
+        return maintenanceItem;
     }
 
     @Transactional
@@ -115,7 +117,6 @@ public class MaintenanceItemService {
     }
 
     private MaintenanceItemResponse convertToResponse(MaintenanceItem item) {
-        // 가장 최근의 유지보수 이력 가져오기
         MaintenanceHistory latestHistory = getLatestMaintenanceHistory(item);
 
         Long lastReplacementKm = (latestHistory != null && latestHistory.getReplacementKm() != null) ?
@@ -152,7 +153,6 @@ public class MaintenanceItemService {
     }
 
     private MaintenanceItemDetailResponse convertToDetailedResponse(MaintenanceItem item) {
-        // 가장 최근의 유지보수 이력 가져오기
         MaintenanceHistory latestHistory = getLatestMaintenanceHistory(item);
 
         Long lastReplacementKm = (latestHistory != null && latestHistory.getReplacementKm() != null) ?

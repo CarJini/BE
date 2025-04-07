@@ -5,6 +5,7 @@ import com.ll.carjini.domain.carOwner.service.CarOwnerService;
 import com.ll.carjini.domain.member.entity.Member;
 import com.ll.carjini.domain.oauth.entity.PrincipalDetails;
 import com.ll.carjini.global.dto.GlobalResponse;
+import com.ll.carjini.global.error.ErrorCode;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,58 +28,61 @@ public class CarOwnerController {
 
     @PostMapping
     @Operation(summary = "차량 등록", description = "사용자의 차량을 등록합니다.")
-    public GlobalResponse<CarOwnerResponse> createCarOwner(
+    public GlobalResponse<?> createCarOwner(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @RequestBody CarOwnerRequest carOwnerRequest
     ) {
-        Member member = principalDetails.user();
-        CarOwnerResponse response = carOwnerService.createCarOwner(member, carOwnerRequest);
-
-        return GlobalResponse.success(response);
+        try {
+            Member member = principalDetails.user();
+            CarOwnerResponse response = carOwnerService.createCarOwner(member, carOwnerRequest);
+            return GlobalResponse.success(response);
+        } catch (Exception e) {
+            return GlobalResponse.error(ErrorCode.ENTITY_NOT_FOUND);
+        }
     }
 
-    @GetMapping("/{carOwnerId}")
-    @Operation(summary = "차량 소유 정보 조회", description = "특정 차량 소유 정보를 조회합니다.")
-    public GlobalResponse<CarOwnerResponse> getCarOwner(
-            @PathVariable Long carOwnerId
-    ) {
-        CarOwnerResponse response = carOwnerService.getCarOwner(carOwnerId);
-
-        return GlobalResponse.success(response);
-    }
-
-    @GetMapping("/my")
+    @GetMapping
     @Operation(summary = "내 차량 목록 조회", description = "로그인한 사용자의 모든 차량 소유 정보를 조회합니다.")
-    public GlobalResponse<List<CarOwnerResponse>> getMyCarOwners(
+    public GlobalResponse<?> getMyCarOwners(
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
-        Member member = principalDetails.user();
-        List<CarOwnerResponse> responses = carOwnerService.getCarOwnersByMember(member);
-
-        return GlobalResponse.success(responses);
+        try {
+            Member member = principalDetails.user();
+            List<CarOwnerResponse> responses = carOwnerService.getCarOwnersByMember(member);
+            return GlobalResponse.success(responses);
+        } catch (Exception e) {
+            return GlobalResponse.error(ErrorCode.ENTITY_NOT_FOUND);
+        }
     }
 
-    @PutMapping
+    @PutMapping("/{carOwnerId}")
     @Operation(summary = "차량 정보 수정", description = "사용자의 차량 정보를 수정합니다.")
-    public GlobalResponse<CarOwnerResponse> updateCarOwner(
+    public GlobalResponse<?> updateCarOwner(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable Long carOwnerId,
             @RequestBody CarOwnerRequest carOwnerRequest
     ) {
-        Member member = principalDetails.user();
-        CarOwnerResponse response = carOwnerService.updateCarOwner(member, carOwnerRequest);
-
-        return GlobalResponse.success(response);
+        try {
+            Member member = principalDetails.user();
+            CarOwnerResponse response = carOwnerService.updateCarOwner(member, carOwnerId, carOwnerRequest);
+            return GlobalResponse.success(response);
+        } catch (Exception e) {
+            return GlobalResponse.error(ErrorCode.ENTITY_NOT_FOUND);
+        }
     }
 
     @DeleteMapping("/{carOwnerId}")
     @Operation(summary = "차량 정보 삭제", description = "사용자의 차량 정보를 삭제합니다.")
-    public GlobalResponse<Void> deleteCarOwner(
+    public GlobalResponse<?> deleteCarOwner(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable Long carOwnerId
     ) {
-        Member member = principalDetails.user();
-        carOwnerService.deleteCarOwner(carOwnerId, member);
-
-        return GlobalResponse.success();
+        try {
+            Member member = principalDetails.user();
+            carOwnerService.deleteCarOwner(carOwnerId, member);
+            return GlobalResponse.success();
+        } catch (Exception e) {
+            return GlobalResponse.error(ErrorCode.ENTITY_NOT_FOUND);
+        }
     }
 }

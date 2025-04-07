@@ -2,17 +2,19 @@ package com.ll.carjini.domain.carOwner.dto;
 
 import com.ll.carjini.domain.carOwner.entity.CarOwner;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 public class CarOwnerResponse {
     private Long carOwnerId;
     private String carModel;
     private String carNumber;
-    private String memberName;
+    private String carImage;
     private LocalDate startDate;
     private Long startKm;
     private Long nowKm;
@@ -22,7 +24,7 @@ public class CarOwnerResponse {
                 carOwner.getId(),
                 carOwner.getCar().getBrand(),
                 carOwner.getCar().getModel(),
-                carOwner.getMember().getName(),
+                carOwner.getCar().getCarImage(),
                 carOwner.getStartDate(),
                 carOwner.getStartKm(),
                 carOwner.getNowKm()

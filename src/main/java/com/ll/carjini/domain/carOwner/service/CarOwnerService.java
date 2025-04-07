@@ -6,9 +6,7 @@ import com.ll.carjini.domain.carOwner.dto.CarOwnerRequest;
 import com.ll.carjini.domain.carOwner.dto.CarOwnerResponse;
 import com.ll.carjini.domain.carOwner.entity.CarOwner;
 import com.ll.carjini.domain.carOwner.repository.CarOwnerRepository;
-import com.ll.carjini.domain.member.dto.MemberDto;
 import com.ll.carjini.domain.member.entity.Member;
-import com.ll.carjini.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,30 +41,24 @@ public class CarOwnerService {
     }
 
     @Transactional
-    public CarOwnerResponse updateCarOwner(Member member, CarOwnerRequest carOwnerRequest) {
-        Car car = carRepository.findById(carOwnerRequest.getCarId())
-                .orElseThrow(() -> new RuntimeException("Car not found"));
+    public CarOwnerResponse updateCarOwner(Member member, Long carOwnerId, CarOwnerRequest carOwnerRequest) {
 
-        CarOwner carOwner = CarOwner.builder()
-                .member(member)
-                .car(car)
-                .startDate(carOwnerRequest.getStartDate())
-                .startKm(carOwnerRequest.getStartKm())
-                .nowKm(carOwnerRequest.getNowKm())
-                .build();
+        CarOwner carOwner = carOwnerRepository.findById(carOwnerId)
+                .orElseThrow(() -> new RuntimeException("Car owner not found"));
+
+        Car car = carRepository.findById(carOwnerRequest.getCarId())
+                    .orElseThrow(() -> new RuntimeException("Car not found"));
+
+        carOwner.setCar(car);
+        carOwner.setStartDate(carOwnerRequest.getStartDate());
+        carOwner.setStartKm(carOwnerRequest.getStartKm());
+        carOwner.setNowKm(carOwnerRequest.getNowKm());
 
         CarOwner savedCarOwner = carOwnerRepository.save(carOwner);
 
         return CarOwnerResponse.of(savedCarOwner);
     }
 
-
-    public CarOwnerResponse getCarOwner(Long carOwnerId) {
-        CarOwner carOwner = carOwnerRepository.findById(carOwnerId)
-                .orElseThrow(() -> new RuntimeException("CarOwner not found"));
-
-        return CarOwnerResponse.of(carOwner);
-    }
 
 
     public List<CarOwnerResponse> getCarOwnersByMember(Member member) {

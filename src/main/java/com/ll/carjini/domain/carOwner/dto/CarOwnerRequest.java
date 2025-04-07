@@ -14,7 +14,6 @@ import java.time.LocalDate;
 @Setter
 public class CarOwnerRequest {
     private Long carId;
-    private Long memberId;
     private LocalDate startDate;
     private Long startKm;
     private Long nowKm;

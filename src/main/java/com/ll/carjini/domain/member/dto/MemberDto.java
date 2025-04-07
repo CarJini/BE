@@ -8,11 +8,15 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class MemberDto {
-    private String nickname;
+    private String name;
+    private String email;
+    private String profile;
 
     public static MemberDto of(Member member) {
         return MemberDto.builder()
-                .nickname(member.getNickname())
+                .name(member.getName())
+                .email(member.getEmail())
+                .profile(member.getProfile())
                 .build();
     }
 }

@@ -27,4 +27,5 @@ public class Car {
 
     @NonNull
     private String model;
+
 }

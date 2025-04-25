@@ -20,6 +20,10 @@ spring:
     url: jdbc:mysql://172.17.0.1:3306/carjini
     username: root
   data:
+    mongodb:
+      host: 172.17.0.1
+      post: 27017
+      database: carjini
     redis:
       host: 172.17.0.1
       port: 6379

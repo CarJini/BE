@@ -10,6 +10,5 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatbotRequest {
-    private Long carOwnerId;
     private String message;
 }

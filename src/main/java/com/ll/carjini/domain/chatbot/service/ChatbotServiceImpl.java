@@ -22,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +31,7 @@ public class ChatbotServiceImpl implements ChatbotService {
 
     private final RestTemplate restTemplate;
     private final ChatRepository chatRepository;
+    private final RedisChatService redisChatService;
 
     @Value("${openai.api.key}")
     private String openAiApiKey;
@@ -41,19 +43,15 @@ public class ChatbotServiceImpl implements ChatbotService {
     private String openAiModel;
 
     @Override
-    public ChatbotResponse processMessage(ChatbotRequest request) {
-        // 사용자 메시지 저장
-        saveUserMessage(request);
+    public ChatbotResponse processMessage(Long carOwnerId, ChatbotRequest request) {
+        saveUserMessageToRedis(carOwnerId, request);
 
-        // ChatGPT API를 통해 응답 생성 (이전 대화 내역 포함)
-        String botResponseText = callChatGptApi(request.getMessage(), request.getCarOwnerId());
+        String botResponseText = callChatGptApi( carOwnerId, request.getMessage());
 
-        // 챗봇 응답 저장
-        Chat botMessage = saveBotMessage(request.getCarOwnerId(), botResponseText);
+        Chat botMessage = saveBotMessageToRedis(carOwnerId, botResponseText);
 
-        // 응답 생성 및 반환
         return ChatbotResponse.builder()
-                .carOwnerId(request.getCarOwnerId())
+                .carOwnerId(carOwnerId)
                 .message(botResponseText)
                 .createdAt(botMessage.getCreatedAt())
                 .build();
@@ -62,15 +60,15 @@ public class ChatbotServiceImpl implements ChatbotService {
     @Override
     public Page<Chat> getChatHistoryPaginated(Long carOwnerId, Pageable pageable) {
         log.info("Fetching paginated chatbot history for user: {}, pageable: {}", carOwnerId, pageable);
+
+        endChatSession(carOwnerId);
         return chatRepository.findByCarOwnerId(carOwnerId, pageable);
     }
 
-    // ChatGPT API 호출을 별도 메서드로 분리
-    private String callChatGptApi(String userMessage, Long carOwnerId) {
+    private String callChatGptApi(Long carOwnerId, String userMessage) {
         log.info("Calling ChatGPT API with message: {}", userMessage);
 
-        // 이전 대화 내역 3개 조회
-        List<Chat> recentChats = chatRepository.findTop3ByCarOwnerIdOrderByCreatedAtDesc(carOwnerId);
+        List<Chat> recentChats = redisChatService.getRecentChats(carOwnerId, 3);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -94,12 +92,10 @@ public class ChatbotServiceImpl implements ChatbotService {
                 "\n" +
                 "Always prioritize safety, accuracy, and customer satisfaction.";
 
-        // JSON 요청 생성을 위한 StringBuilder
         StringBuilder messagesJson = new StringBuilder();
         messagesJson.append("[\n");
         messagesJson.append(" {\"role\": \"system\", \"content\": \"").append(escapeJsonString(systemPrompt)).append("\"},\n");
 
-        // 이전 대화 내역 추가 (시간순으로 정렬하기 위해 역순으로)
         for (int i = recentChats.size() - 1; i >= 0; i--) {
             Chat chat = recentChats.get(i);
             String role = chat.getSender() == SenderType.USER ? "user" : "assistant";
@@ -107,7 +103,6 @@ public class ChatbotServiceImpl implements ChatbotService {
                     .append(escapeJsonString(chat.getMessage())).append("\"},\n");
         }
 
-        // 현재 사용자 메시지 추가
         messagesJson.append(" {\"role\": \"user\", \"content\": \"").append(escapeJsonString(userMessage)).append("\"}\n");
         messagesJson.append(" ]");
 
@@ -118,7 +113,7 @@ public class ChatbotServiceImpl implements ChatbotService {
                         " \"temperature\": 0\n" +
                         "}",
                 openAiModel,
-                messagesJson.toString());
+                messagesJson);
 
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
@@ -140,28 +135,34 @@ public class ChatbotServiceImpl implements ChatbotService {
         }
     }
 
-    // 사용자 메시지 저장 메서드
-    private Chat saveUserMessage(ChatbotRequest request) {
+    private Chat saveUserMessageToRedis(Long carOwnerId, ChatbotRequest request) {
         Chat userMessage = Chat.builder()
-                .carOwnerId(request.getCarOwnerId())
+                .id(generateUniqueId()) // UUID 등으로 고유 ID 생성
+                .carOwnerId(carOwnerId)
                 .message(request.getMessage())
                 .createdAt(LocalDateTime.now())
                 .sender(SenderType.USER)
                 .build();
 
-        return chatRepository.save(userMessage);
+        redisChatService.saveChat(userMessage);
+        return userMessage;
     }
 
-    // 챗봇 응답 저장 메서드
-    private Chat saveBotMessage(Long carOwnerId, String content) {
+    private Chat saveBotMessageToRedis(Long carOwnerId, String content) {
         Chat botMessage = Chat.builder()
+                .id(generateUniqueId())
                 .carOwnerId(carOwnerId)
                 .message(content)
                 .createdAt(LocalDateTime.now())
                 .sender(SenderType.BOT)
                 .build();
 
-        return chatRepository.save(botMessage);
+        redisChatService.saveChat(botMessage);
+        return botMessage;
+    }
+
+    private String generateUniqueId() {
+        return UUID.randomUUID().toString();
     }
 
     private String escapeJsonString(String input) {
@@ -175,4 +176,15 @@ public class ChatbotServiceImpl implements ChatbotService {
                 .replace("\t", "\\t");
     }
 
+    public void endChatSession(Long carOwnerId) {
+        log.info("Ending chat session for carOwnerId: {}", carOwnerId);
+
+        List<Chat> pendingChats = redisChatService.getPendingChats(carOwnerId);
+
+        if (!pendingChats.isEmpty()) {
+            chatRepository.saveAll(pendingChats);
+            redisChatService.clearPendingChats(carOwnerId);
+            log.info("Saved {} pending chats to DB for carOwnerId: {}", pendingChats.size(), carOwnerId);
+        }
+    }
 }

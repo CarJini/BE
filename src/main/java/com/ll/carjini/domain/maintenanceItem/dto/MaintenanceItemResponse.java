@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MaintenanceItemResponse {
+    private Long id;                    // 항목 ID
     private String name;                 // 항목 이름
     private boolean cycleAlarm;
     private String replacementCycle;     // 교체 주기 정보
@@ -16,6 +17,4 @@ public class MaintenanceItemResponse {
     private String lastReplacementDate;  // 최근 교체 날짜
     private String status;               // 상태 (교체 필요 / 주의 / 양호)
     private int progress;                // 진행 바 (0~100%)
-
-
 }

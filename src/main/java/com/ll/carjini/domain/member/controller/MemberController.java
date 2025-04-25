@@ -6,6 +6,7 @@ import com.ll.carjini.domain.member.entity.Member;
 import com.ll.carjini.domain.member.service.MemberService;
 import com.ll.carjini.domain.oauth.entity.PrincipalDetails;
 import com.ll.carjini.global.dto.GlobalResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @PutMapping("/fcm-token")
+    @Operation(summary = "FCM 토큰 업데이트", description = "FCM 토큰을 업데이트합니다.")
     public ResponseEntity<Void> updateFcmToken(
             @RequestBody FCMTokenRequest request,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
@@ -34,6 +36,7 @@ public class MemberController {
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "회원 정보 조회", description = "회원 정보를 조회합니다.")
     public GlobalResponse<MemberDto> getUserProfile(
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
@@ -45,6 +48,7 @@ public class MemberController {
 
     @PutMapping("/nickname")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "회원 닉네임 수정", description = "회원의 닉네임을 수정합니다.")
     public ResponseEntity<MemberDto> updateNickname(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @RequestBody @Valid UpdateNicknameRequest request
@@ -54,6 +58,4 @@ public class MemberController {
 
         return ResponseEntity.ok(updatedMember);
     }
-
-
 }

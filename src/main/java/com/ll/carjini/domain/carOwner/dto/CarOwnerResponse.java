@@ -11,10 +11,10 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Getter
 public class CarOwnerResponse {
-    private Long carOwnerId;
-    private String carModel;
-    private String carNumber;
-    private String carImage;
+    private Long id;
+    private String brand;
+    private String model;
+    private String image;
     private LocalDate startDate;
     private Long startKm;
     private Long nowKm;

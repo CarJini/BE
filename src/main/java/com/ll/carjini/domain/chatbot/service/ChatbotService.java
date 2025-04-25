@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface ChatbotService {
 
-    ChatbotResponse processMessage(ChatbotRequest request);
+    ChatbotResponse processMessage(Long carOwnerId, ChatbotRequest request);
     Page<Chat> getChatHistoryPaginated(Long carOwnerId, Pageable pageable);
 
 }

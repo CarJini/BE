@@ -143,6 +143,7 @@ public class MaintenanceItemService {
         int progress = calculateProgress(item, remainingKm, remainingDays);
 
         return new MaintenanceItemResponse(
+                item.getId(),
                 item.getName(),
                 item.isCycleAlarm(),
                 replacementCycleText,

@@ -6,6 +6,7 @@ import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -15,7 +16,8 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 @AllArgsConstructor
-@Document(collection = "users")
+@NoArgsConstructor
+@Document(collection = "chat_history")
 public class Chat {
 
     @Id

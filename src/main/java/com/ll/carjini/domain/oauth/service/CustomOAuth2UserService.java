@@ -77,30 +77,4 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 });
     }
 
-    @Transactional
-    private Member getOrCreateMember(AuthProvider provider, String providerId, OAuth2UserInfo userInfo) {
-
-        return memberRepository.findByProviderAndProviderId(provider, providerId)
-                .orElseGet(() -> {
-                    Optional<Member> existingMember = memberRepository.findByEmail(userInfo.email());
-
-                    if (existingMember.isPresent()) {
-                        throw new OAuth2AuthenticationException(
-                                "Email already exists with different provider: " + userInfo.email());
-                    }
-
-                    Member newMember = Member.builder()
-                            .email(userInfo.email())
-                            .name(userInfo.name())
-                            .profile(userInfo.profile())
-                            .provider(provider)
-                            .providerId(providerId)
-                            .role(Role.USER)
-                            .build();
-
-                    return memberRepository.save(newMember);
-                });
-    }
-
-
 }

@@ -3,7 +3,6 @@ package com.ll.carjini.domain.oauth.token;
 import com.ll.carjini.domain.member.entity.Member;
 import com.ll.carjini.domain.member.repository.MemberRepository;
 import com.ll.carjini.domain.oauth.entity.PrincipalDetails;
-import com.ll.carjini.domain.oauth.token.entity.Token;
 import com.ll.carjini.global.exception.CustomException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -20,7 +19,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.util.Collections;

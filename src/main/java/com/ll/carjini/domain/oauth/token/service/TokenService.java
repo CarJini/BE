@@ -26,27 +26,6 @@ public class TokenService {
         redisTemplate.opsForValue().set(memberId + ":access-token", accessToken);
     }
 
-    public void updateToken(String newAccessToken, Token token) {
-        String username = token.getUsername();
-        String newRefreshToken = token.getRefreshToken();
-
-        this.saveOrUpdate(username, newRefreshToken, newAccessToken);
-    }
-
-
-    public Token findByAccessTokenOrThrow(String accessToken) {
-        String storedToken = redisTemplate.opsForValue().get(accessToken);
-
-        if (storedToken == null) {
-            throw new CustomException(ErrorCode.ACCESS_TOKEN_EXPIRED);
-        }
-        return new Token(accessToken, storedToken); // 예시로 Token 클래스 사용
-    }
-
-    public String getRefreshToken(String username) {
-        return redisTemplate.opsForValue().get(username + ":refresh-token");
-    }
-
     public void deleteToken(String username) {
         redisTemplate.delete(username + ":refresh-token");
         redisTemplate.delete(username + ":access-token");

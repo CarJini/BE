@@ -36,9 +36,9 @@ public class GoogleAuthController {
     @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String googleRedirectUrl;
 
-    private final ObjectMapper objectMapper; // 생성자 주입
-    private final RestTemplate restTemplate; // 생성자 주입
-    private final CustomOAuth2UserService customOAuth2UserService; // 생성자 주입
+    private final ObjectMapper objectMapper;
+    private final RestTemplate restTemplate;
+    private final CustomOAuth2UserService customOAuth2UserService;
     private final TokenProvider tokenProvider;
 
 
@@ -70,12 +70,10 @@ public class GoogleAuthController {
                                @RequestParam("state") String state,
                                HttpServletResponse response) throws IOException {
         try {
-            // Decode state and get redirect URL
             String decodedState = new String(Base64.getUrlDecoder().decode(state));
             Map<String, String> stateObj = objectMapper.readValue(decodedState, Map.class);
             String redirectUrl = stateObj.get("redirectUrl");
 
-            // Exchange code for token with Google
             Map<String, String> requestBody = new HashMap<>();
             requestBody.put("code", code);
             requestBody.put("client_id", googleClientId);
@@ -93,7 +91,6 @@ public class GoogleAuthController {
                     Map.class
             );
 
-            // Get user info from Google using token
             String googleAccessToken = (String) tokenResponse.get("access_token");
             HttpHeaders userInfoHeaders = new HttpHeaders();
             userInfoHeaders.setBearerAuth(googleAccessToken);
@@ -106,13 +103,10 @@ public class GoogleAuthController {
                     Map.class
             ).getBody();
 
-            // Create OAuth2UserInfo
             OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfo.of("google", userInfo);
 
-            // Get or create the member - using your existing method
             Member member = customOAuth2UserService.getOrSave(oAuth2UserInfo);
 
-            // Create Authentication object
             PrincipalDetails principalDetails = new PrincipalDetails(member, userInfo, "sub");
             Authentication authentication = new OAuth2AuthenticationToken(
                     principalDetails,
@@ -120,7 +114,7 @@ public class GoogleAuthController {
                     "google"
             );
 
-            // Generate JWT tokens
+
             String accessToken = tokenProvider.generateAccessToken(authentication);
             String refreshToken = tokenProvider.generateRefreshToken(authentication, accessToken);
 

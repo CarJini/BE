@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/car/{carOwnerId}/maintenance-history/")
+@RequestMapping("/api/car/{carOwnerId}/maintenance-history")
 @RequiredArgsConstructor
 @Tag(name = "차량 정비 이력 API", description = "차량 정비 이력 조회/등록/수정/삭제")
 public class MaintenanceHistoryController {

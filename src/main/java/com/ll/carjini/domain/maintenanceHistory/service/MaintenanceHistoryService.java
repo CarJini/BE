@@ -79,7 +79,6 @@ public class MaintenanceHistoryService {
         CarOwner carOwner = carOwnerRepository.findById(carOwnerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
-        // 사용자가 이 차량에 접근 권한이 있는지 확인
         if (!carOwner.getMember().getId().equals(userId)) {
             throw new CustomException(ErrorCode.ACCESS_DENIED);
         }
@@ -87,19 +86,16 @@ public class MaintenanceHistoryService {
         MaintenanceHistory history = maintenanceHistoryRepository.findById(historyId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
-        // 이 이력이 지정된 차량 소유자에게 속하는지 확인
         if (!history.getCarOwner().getId().equals(carOwnerId)) {
             throw new CustomException(ErrorCode.ENTITY_NOT_FOUND);
         }
 
-        // 정비 항목이 변경된 경우
         if (!history.getMaintenanceItem().getId().equals(dto.getMaintenanceItemId())) {
             MaintenanceItem newItem = maintenanceItemRepository.findById(dto.getMaintenanceItemId())
                     .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
             history.setMaintenanceItem(newItem);
         }
 
-        // 정비 이력 업데이트
         history.setReplacementDate(dto.getReplacementDate());
         history.setReplacementKm(dto.getReplacementKm());
 

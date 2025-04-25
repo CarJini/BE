@@ -67,7 +67,4 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             e.printStackTrace();
         }
     }
-
-
-
 }

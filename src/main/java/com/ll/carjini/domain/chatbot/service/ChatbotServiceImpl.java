@@ -137,7 +137,7 @@ public class ChatbotServiceImpl implements ChatbotService {
 
     private Chat saveUserMessageToRedis(Long carOwnerId, ChatbotRequest request) {
         Chat userMessage = Chat.builder()
-                .id(generateUniqueId()) // UUID 등으로 고유 ID 생성
+                .id(generateUniqueId())
                 .carOwnerId(carOwnerId)
                 .message(request.getMessage())
                 .createdAt(LocalDateTime.now())

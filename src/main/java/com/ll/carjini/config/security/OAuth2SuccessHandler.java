@@ -37,7 +37,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String refreshToken = tokenProvider.generateRefreshToken(authentication, accessToken);
 
         String state = request.getParameter("state");
-        String redirectUrl = "http://youfailed.com";
+        String redirectUrl = redirectUri;
 
         if (state != null && !state.isEmpty()) {
             try {

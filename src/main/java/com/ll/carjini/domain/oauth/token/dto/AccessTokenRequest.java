@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AccessTokenRequest {
-    private String _hrauth;
+    private String refreshToken;
 }

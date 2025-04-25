@@ -15,17 +15,22 @@ public class CarData {
     @Bean
     public ApplicationRunner init(CarRepository carRepository) {
         return args -> {
-            // 샘플 자동차 데이터 생성
-            List<Car> cars = Arrays.asList(
-                    new Car( "https://ibb.co/zHxzhf6z", "Hyundai", "Sonata"),
-                    new Car("https://ibb.co/Pzm7t9R0", "Kia", "K5"),
-                    new Car("https://ibb.co/7xpQ1ywF","Samsung", "SM6")
-            );
+            if (carRepository.count() == 0) {
+                List<Car> cars = Arrays.asList(
+                        new Car("https://ibb.co/zHxzhf6z", "Hyundai", "Sonata"),
+                        new Car("https://ibb.co/Pzm7t9R0", "Kia", "K5"),
+                        new Car("https://ibb.co/7xpQ1ywF", "Samsung", "SM6")
+                );
 
-            carRepository.saveAll(cars);
+                carRepository.saveAll(cars);
 
-            System.out.println("==== 초기 자동차 데이터가 성공적으로 추가되었습니다 ====");
+                System.out.println("==== 초기 자동차 데이터가 성공적으로 추가되었습니다 ====");
+            } else {
+                System.out.println("==== 데이터가 이미 존재합니다. 초기화하지 않습니다. ====");
+            }
+
             carRepository.findAll().forEach(System.out::println);
         };
     }
 }
+

@@ -144,7 +144,9 @@ public class MaintenanceItemService {
 
         return new MaintenanceItemResponse(
                 item.getName(),
+                item.isCycleAlarm(),
                 replacementCycleText,
+                item.isKmAlarm(),
                 remainingKm != null ? remainingKm : 0L,
                 lastReplacementDate,
                 status,

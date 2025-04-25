@@ -64,7 +64,8 @@ public class SecurityConfig {
                                         "/swagger-resources/**",
                                         "/admin/mypage/**",
                                 "/home/**",
-                                "/actuator/health"
+                                "/actuator/health",
+                                "/api/auth/token/refresh"
                                 ).permitAll()
                 .anyRequest().authenticated()
                 )

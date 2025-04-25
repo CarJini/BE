@@ -31,6 +31,8 @@ public class Member extends BaseEntity {
 
     private String providerId;
 
+    private String fcmToken;
+
     private static String generateRandomNickname() {
         Random random = new Random();
         int randomNumber = 10000 + random.nextInt(90000); // 10000 ~ 99999

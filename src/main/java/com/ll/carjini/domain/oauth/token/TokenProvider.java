@@ -11,6 +11,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import com.ll.carjini.domain.oauth.token.service.TokenService;
 import com.ll.carjini.global.error.ErrorCode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class TokenProvider {
 
     @Value("${jwt.key}")
@@ -52,8 +54,11 @@ public class TokenProvider {
     }
 
     public String generateRefreshToken(Authentication authentication, String accessToken) {
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        String memberId = String.valueOf(principalDetails.user().getId());
+
         String refreshToken = generateToken(authentication, REFRESH_TOKEN_EXPIRE_TIME);
-        tokenService.saveOrUpdate(authentication.getName(), refreshToken, accessToken);
+        tokenService.saveOrUpdate(memberId, refreshToken, accessToken);
         return refreshToken;
     }
 
@@ -67,6 +72,7 @@ public class TokenProvider {
 
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         Long memberId = principalDetails.user().getId();
+        log.info("memberId 생성 중 : {}", memberId);
 
         return Jwts.builder()
                 .setSubject(memberId.toString())
@@ -96,20 +102,6 @@ public class TokenProvider {
     private List<SimpleGrantedAuthority> getAuthorities(Claims claims) {
         return Collections.singletonList(new SimpleGrantedAuthority(
                 claims.get(KEY_ROLE).toString()));
-    }
-
-    public String reissueAccessToken(String accessToken) {
-        if (StringUtils.hasText(accessToken)) {
-            Token token = tokenService.findByAccessTokenOrThrow(accessToken);
-            String refreshToken = token.getRefreshToken();
-
-            if (validateToken(refreshToken)) {
-                String reissueAccessToken = generateAccessToken(getAuthentication(refreshToken));
-                tokenService.updateToken(reissueAccessToken, token);
-                return reissueAccessToken;
-            }
-        }
-        return null;
     }
 
     public boolean validateToken(String token) {
@@ -142,16 +134,17 @@ public class TokenProvider {
         }
 
         Claims claims = parseClaims(refreshToken);
-        String username = claims.getSubject();
+        String memberId = claims.getSubject();
         String role = claims.get("role", String.class);
+        log.info("refreshToken: {}", memberId);
 
-        String storedToken = redisTemplate.opsForValue().get(username + ":refresh-token");
+        String storedToken = redisTemplate.opsForValue().get(memberId + ":refresh-token");
         if (!refreshToken.equals(storedToken)) {
             throw new CustomException(ErrorCode.NOT_FOUND_USER);
         }
 
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(memberId)
                 .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRE_TIME))

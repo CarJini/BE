@@ -30,8 +30,12 @@ public class MaintenanceItem extends BaseEntity {
     @Column(nullable = true)
     private Long replacementCycle;
 
+    private boolean cycleAlarm;
+
     @Column(nullable = true)
     private Long replacementKm;
+
+    private boolean kmAlarm;
 
     @OneToMany(mappedBy = "maintenanceItem", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MaintenanceHistory> maintenanceHistories;

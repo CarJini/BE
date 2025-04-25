@@ -1,5 +1,6 @@
 package com.ll.carjini.domain.member.controller;
 
+import com.ll.carjini.domain.member.dto.FCMTokenRequest;
 import com.ll.carjini.domain.member.dto.UpdateNicknameRequest;
 import com.ll.carjini.domain.member.entity.Member;
 import com.ll.carjini.domain.member.service.MemberService;
@@ -21,6 +22,15 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberService memberService;
+
+    @PutMapping("/fcm-token")
+    public ResponseEntity<Void> updateFcmToken(
+            @RequestBody FCMTokenRequest request,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        memberService.updateFcmToken(principalDetails.user().getId(), request.getFcmToken());
+        return ResponseEntity.ok().build();
+    }
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")

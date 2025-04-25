@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+
 @Service
 public class TokenService {
 
@@ -19,9 +21,9 @@ public class TokenService {
         this.redisTemplate = redisTemplate;
     }
 
-    public void saveOrUpdate(String username, String refreshToken, String accessToken) {
-        redisTemplate.opsForValue().set(username + ":refresh-token", refreshToken, refreshTokenExpireTime);
-        redisTemplate.opsForValue().set(username + ":access-token", accessToken);
+    public void saveOrUpdate(String memberId, String refreshToken, String accessToken) {
+        redisTemplate.opsForValue().set(memberId + ":refresh-token", refreshToken, Duration.ofSeconds(refreshTokenExpireTime));
+        redisTemplate.opsForValue().set(memberId + ":access-token", accessToken);
     }
 
     public void updateToken(String newAccessToken, Token token) {

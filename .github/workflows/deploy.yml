@@ -69,8 +69,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/carjini/be:${{ needs.makeTagAndRelease.outputs.tag_name }}
-            ghcr.io/carjini/be:latest
+            ghcr.io/ploop-2025-solution-challenge/be:${{ needs.makeTagAndRelease.outputs.tag_name }}
+            ghcr.io/ploop-2025-solution-challenge/be:latest
   deploy:
     runs-on: ubuntu-latest
     needs: [ buildImageAndPush ]

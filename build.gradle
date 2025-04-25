@@ -68,6 +68,11 @@ dependencies {
 
 	//
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    //firebase 설정
+	implementation("com.google.firebase:firebase-admin:7.1.1")
+
+	//몽고디비 설정
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
 }
 

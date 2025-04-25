@@ -49,7 +49,7 @@ public class GoogleAuthController {
         stateObj.put("redirectUrl", redirectUrl);
 
         String stateJson = objectMapper.writeValueAsString(stateObj);
-        String stateParam = Base64.getEncoder().encodeToString(stateJson.getBytes());
+        String stateParam = Base64.getUrlEncoder().encodeToString(stateJson.getBytes());
 
         String googleAuthUrl = UriComponentsBuilder
                 .fromHttpUrl("https://accounts.google.com/o/oauth2/v2/auth")
@@ -71,7 +71,7 @@ public class GoogleAuthController {
                                HttpServletResponse response) throws IOException {
         try {
             // Decode state and get redirect URL
-            String decodedState = new String(Base64.getDecoder().decode(state));
+            String decodedState = new String(Base64.getUrlDecoder().decode(state));
             Map<String, String> stateObj = objectMapper.readValue(decodedState, Map.class);
             String redirectUrl = stateObj.get("redirectUrl");
 

@@ -1,6 +1,6 @@
 app:
   client:
-    url: http://localhost:8081
+    url: http://localhost:8090
 server:
   port: 8090
   shutdown: graceful
@@ -24,7 +24,7 @@ spring:
             redirect-uri: http://localhost:8090/auth/google/redirect
   data:
     redis:
-      host: localhost
+      host: 127.0.0.1
       port: 6379
   jpa:
     hibernate:

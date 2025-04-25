@@ -39,4 +39,5 @@ public class MaintenanceItem extends BaseEntity {
 
     @OneToMany(mappedBy = "maintenanceItem", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MaintenanceHistory> maintenanceHistories;
+
 }

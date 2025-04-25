@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/car/{carOwnerId}/maintenance-history")
+@RequestMapping("/api/car/{carOwnerId}/maintenance-items/{maintenanceItemId}/maintenance-history")
 @RequiredArgsConstructor
 @Tag(name = "차량 정비 이력 API", description = "차량 정비 이력 조회/등록/수정/삭제")
 public class MaintenanceHistoryController {
@@ -37,13 +37,14 @@ public class MaintenanceHistoryController {
     }
 
     @PostMapping
-    @Operation(summary = "차량 정비 이력 등록", description = "사용자의 차량 정비 이력을 등록합니다.")
+    @Operation(summary = "차량 정비 이력 등록", description = "사용자의 차량 정비 이력을 등록합니다. 여기서 replacementKm, replacementDate는 교체 당시 차량의 주행거리와 날짜를 의미합니다. ")
     public GlobalResponse<String> createHistory(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @RequestBody MaintenanceHistoryRequest dto,
-            @PathVariable Long carOwnerId) {
+            @PathVariable Long carOwnerId,
+            @PathVariable Long maintenanceItemId) {
 
-        maintenanceHistoryService.createMaintenanceHistory(principalDetails.user().getId(), carOwnerId, dto);
+        maintenanceHistoryService.createMaintenanceHistory(principalDetails.user().getId(), carOwnerId, maintenanceItemId, dto);
         return GlobalResponse.success("정비 이력이 추가되었습니다.");
     }
 
@@ -53,10 +54,11 @@ public class MaintenanceHistoryController {
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable Long id,
             @PathVariable Long carOwnerId,
+            @PathVariable Long maintenanceItemId,
             @RequestBody MaintenanceHistoryRequest dto
     ) {
         try {
-            maintenanceHistoryService.updateMaintenanceHistory(principalDetails.user().getId(), carOwnerId, id, dto);
+            maintenanceHistoryService.updateMaintenanceHistory(principalDetails.user().getId(), carOwnerId,maintenanceItemId, id, dto);
             return GlobalResponse.success("정비 이력이 수정되었습니다.");
         } catch(Exception e) {
             throw new CustomException(ErrorCode.ENTITY_NOT_FOUND);
@@ -68,9 +70,10 @@ public class MaintenanceHistoryController {
     public GlobalResponse<String> deleteHistory(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable Long carOwnerId,
+            @PathVariable Long maintenanceItemId,
             @PathVariable Long id) {
         try {
-            maintenanceHistoryService.deleteMaintenanceHistory(principalDetails.user().getId(), carOwnerId, id);
+            maintenanceHistoryService.deleteMaintenanceHistory(principalDetails.user().getId(), carOwnerId, maintenanceItemId, id);
             return GlobalResponse.success("정비 이력이 삭제되었습니다.");
         } catch(Exception e) {
             throw new CustomException(ErrorCode.ENTITY_NOT_FOUND);

@@ -26,7 +26,7 @@ public class MaintenanceItemController {
     private final MaintenanceItemService maintenanceItemService;
 
     @GetMapping
-    @Operation(summary = "차량 정비 아이템들 조회", description = "사용자의 차량 정비 아이템들을 조회합니다.")
+    @Operation(summary = "차량 정비 아이템들 조회", description = "사용자의 차량 정비 아이템들을 조회합니다. Status는 교체일에서 30일이 남았거나 500 km가 남았을 때 주의, 아니면 양호, 때를 지났다면 교체 필요라고 뜹니다.")
     public GlobalResponse<List<MaintenanceItemResponse>> getMaintenanceItems(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable Long carOwnerId
@@ -57,7 +57,7 @@ public class MaintenanceItemController {
     }
 
     @PostMapping
-    @Operation(summary = "차량 정비 아이템 등록", description = "사용자의 차량 정비 등록을 조회합니다.")
+    @Operation(summary = "차량 정비 아이템 등록", description = "사용자의 차량 정비 아이템을 등록합니다. 카테고리는 ENGINE_OIL, BRAKE_PAD, TIRE, AIR_FILTER, COOLANT로 임시로 설정해 놓았습니다. ")
     public GlobalResponse<String> create(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @RequestBody MaintenanceItemRequest dto,
@@ -65,7 +65,7 @@ public class MaintenanceItemController {
         try {
             Long memberId = principalDetails.user().getId();
 
-            MaintenanceItemCategory category = MaintenanceItemCategory.valueOf(dto.getMaintenanceItemCategory().toUpperCase());
+            MaintenanceItemCategory category = MaintenanceItemCategory.valueOf(dto.getCategory().toUpperCase());
 
             maintenanceItemService.create(carOwnerId, memberId, dto.getName(), category, dto.getReplacementCycle(), dto.getReplacementKm());
 
@@ -87,7 +87,7 @@ public class MaintenanceItemController {
         try{
             Long memberId = principalDetails.user().getId();
 
-            MaintenanceItemCategory category = MaintenanceItemCategory.valueOf(dto.getMaintenanceItemCategory().toUpperCase());
+            MaintenanceItemCategory category = MaintenanceItemCategory.valueOf(dto.getCategory().toUpperCase());
 
            maintenanceItemService.update(
                    carOwnerId,

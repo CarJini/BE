@@ -50,7 +50,7 @@ public class MaintenanceHistoryService {
     }
 
     @Transactional
-    public void createMaintenanceHistory(Long userId, Long carOwnerId, MaintenanceHistoryRequest dto) {
+    public void createMaintenanceHistory(Long userId, Long carOwnerId, Long maintenanceItemId, MaintenanceHistoryRequest dto) {
         CarOwner carOwner = carOwnerRepository.findById(carOwnerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
@@ -60,7 +60,7 @@ public class MaintenanceHistoryService {
         }
 
         // 정비 항목 찾기
-        MaintenanceItem maintenanceItem = maintenanceItemRepository.findById(dto.getMaintenanceItemId())
+        MaintenanceItem maintenanceItem = maintenanceItemRepository.findById(maintenanceItemId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
         // 정비 이력 생성
@@ -75,7 +75,7 @@ public class MaintenanceHistoryService {
     }
 
     @Transactional
-    public void updateMaintenanceHistory(Long userId, Long carOwnerId, Long historyId, MaintenanceHistoryRequest dto) {
+    public void updateMaintenanceHistory(Long userId, Long carOwnerId, Long maintenanceItemId, Long historyId, MaintenanceHistoryRequest dto) {
         CarOwner carOwner = carOwnerRepository.findById(carOwnerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
@@ -90,8 +90,8 @@ public class MaintenanceHistoryService {
             throw new CustomException(ErrorCode.ENTITY_NOT_FOUND);
         }
 
-        if (!history.getMaintenanceItem().getId().equals(dto.getMaintenanceItemId())) {
-            MaintenanceItem newItem = maintenanceItemRepository.findById(dto.getMaintenanceItemId())
+        if (!history.getMaintenanceItem().getId().equals(maintenanceItemId)) {
+            MaintenanceItem newItem = maintenanceItemRepository.findById(maintenanceItemId)
                     .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
             history.setMaintenanceItem(newItem);
         }
@@ -103,7 +103,7 @@ public class MaintenanceHistoryService {
     }
 
     @Transactional
-    public void deleteMaintenanceHistory(Long userId, Long carOwnerId, Long historyId) {
+    public void deleteMaintenanceHistory(Long userId, Long carOwnerId, Long maintenanceItemId, Long historyId) {
         CarOwner carOwner = carOwnerRepository.findById(carOwnerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
@@ -111,6 +111,10 @@ public class MaintenanceHistoryService {
         if (!carOwner.getMember().getId().equals(userId)) {
             throw new CustomException(ErrorCode.ACCESS_DENIED);
         }
+
+        // 정비 항목 찾기
+       maintenanceItemRepository.findById(maintenanceItemId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
         MaintenanceHistory history = maintenanceHistoryRepository.findById(historyId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));

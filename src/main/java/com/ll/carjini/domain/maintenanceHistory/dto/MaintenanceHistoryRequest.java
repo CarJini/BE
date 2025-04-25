@@ -10,8 +10,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MaintenanceHistoryRequest {
-    private String maintenanceItemName;
-    private Long maintenanceItemId;
     private LocalDate replacementDate;
     private Long replacementKm;
 }

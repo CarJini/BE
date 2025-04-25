@@ -145,10 +145,8 @@ public class MaintenanceItemService {
         return new MaintenanceItemResponse(
                 item.getId(),
                 item.getName(),
-                item.isCycleAlarm(),
+                item.getMaintenanceItemCategory().name(),
                 replacementCycleText,
-                item.isKmAlarm(),
-                remainingKm != null ? remainingKm : 0L,
                 lastReplacementDate,
                 status,
                 progress
@@ -166,14 +164,10 @@ public class MaintenanceItemService {
             remainingKm = item.getReplacementKm() - (lastReplacementKm != null ? lastReplacementKm : 0L);
         }
 
-        String lastReplacementDate = "정보 없음";
         LocalDate lastReplacementDateObj = null;
         if (latestHistory != null && latestHistory.getReplacementDate() != null) {
             lastReplacementDateObj = latestHistory.getReplacementDate();
-            lastReplacementDate = lastReplacementDateObj.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
         }
-
-        String replacementCycleText = buildReplacementCycleText(item);
 
         Long remainingDays = calculateRemainingDays(item, lastReplacementDateObj);
 
@@ -184,10 +178,15 @@ public class MaintenanceItemService {
         int progressDays = calculateDayProgress(item, remainingDays);
 
         return new MaintenanceItemDetailResponse(
+                item.getId(),
                 item.getName(),
-                replacementCycleText,
-                remainingKm != null ? remainingKm : 0L,
-                lastReplacementDate,
+                item.getMaintenanceItemCategory().name(),
+                item.getReplacementKm(),
+                item.getReplacementCycle(),
+                remainingKm,
+                remainingDays,
+                item.isKmAlarm(),
+                item.isCycleAlarm(),
                 status,
                 progressKm,
                 progressDays
@@ -208,7 +207,7 @@ public class MaintenanceItemService {
 
     private String buildReplacementCycleText(MaintenanceItem item) {
         if (item.getReplacementCycle() != null && item.getReplacementKm() != null) {
-            return String.format("매 %d km 또는 %d개월", item.getReplacementCycle(), item.getReplacementKm());
+            return String.format("매 %d km 또는 %d개월", item.getReplacementKm(), item.getReplacementCycle());
         } else if (item.getReplacementCycle() != null) {
             return String.format("매 %d km", item.getReplacementCycle());
         } else if (item.getReplacementKm() != null) {
@@ -232,7 +231,7 @@ public class MaintenanceItemService {
 
         if (remainingKmValue <= 0 || remainingDays <= 0) {
             return "교체 필요";
-        } else if (remainingKmValue <= 5000 || remainingDays <= 30) {
+        } else if (remainingKmValue <= 500 || remainingDays <= 30) {
             return "주의";
         } else {
             return "양호";
@@ -269,8 +268,8 @@ public class MaintenanceItemService {
         Integer kmProgress = null;
 
         if (item.getReplacementKm() != null && remainingKm != null) {
-            double kmRatio = (double) remainingKm / item.getReplacementKm();
-            kmProgress = (int) Math.max(0, Math.min(100, kmRatio * 100));
+            double kmRatio = (double)(item.getReplacementKm() - remainingKm) / item.getReplacementKm();
+            kmProgress = (int) Math.max(0, kmRatio * 100);
         }
 
         return kmProgress;
@@ -281,8 +280,8 @@ public class MaintenanceItemService {
 
         if (item.getReplacementCycle() != null && remainingDays != null && remainingDays != Long.MAX_VALUE) {
             long totalDays = item.getReplacementCycle() * 30L;
-            double dayRatio = (double) remainingDays / totalDays;
-            dayProgress = (int) Math.max(0, Math.min(100, dayRatio * 100));
+            double dayRatio = (double) (totalDays- remainingDays) / totalDays;
+            dayProgress = (int) Math.max(0, dayRatio * 100);
         }
 
         return dayProgress;

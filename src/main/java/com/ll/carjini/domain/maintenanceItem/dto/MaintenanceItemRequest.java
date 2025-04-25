@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class MaintenanceItemRequest {
     private String name;
-    private String maintenanceItemCategory;
+    private String category;
     private boolean cycleAlarm; // 주기 알림 여부
     private boolean kmAlarm;
     private Long replacementCycle; // 교체 기간

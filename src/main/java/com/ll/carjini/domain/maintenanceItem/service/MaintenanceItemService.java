@@ -11,6 +11,8 @@ import com.ll.carjini.domain.maintenanceItem.entity.MaintenanceItemCategory;
 import com.ll.carjini.domain.maintenanceItem.repository.MaintenanceItemRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +43,6 @@ public class MaintenanceItemService {
 
         return carOwner;
     }
-
 
     @Transactional
     public MaintenanceItem create(Long carOwnerId, Long memberId, String name, MaintenanceItemCategory category,
@@ -98,60 +99,13 @@ public class MaintenanceItemService {
         return false;
     }
 
-    public MaintenanceItemDetailResponse getMaintenanceItem(Long carOwnerId, Long memberId, Long id) {
-        validateCarOwnerAccess(carOwnerId, memberId);
-
-        MaintenanceItem item = maintenanceItemRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 정비 항목을 찾을 수 없습니다. ID: " + id));
-
-        return convertToDetailedResponse(item);
-    }
-
-
-    public List<MaintenanceItemResponse> getMaintenanceItems(Long carOwnerId, Long memberId) {
+    public Page<MaintenanceItemDetailResponse> getMaintenanceItem(Long carOwnerId, Long memberId, Pageable pageable) {
         CarOwner carOwner = validateCarOwnerAccess(carOwnerId, memberId);
 
-        return maintenanceItemRepository.findByCarOwner(carOwner).stream()
-                .map(this::convertToResponse)
-                .collect(Collectors.toList());
+        return maintenanceItemRepository.findByCarOwner(carOwner, pageable)
+                .map(this::convertToDetailedResponse);
     }
 
-    private MaintenanceItemResponse convertToResponse(MaintenanceItem item) {
-        MaintenanceHistory latestHistory = getLatestMaintenanceHistory(item);
-
-        Long lastReplacementKm = (latestHistory != null && latestHistory.getReplacementKm() != null) ?
-                latestHistory.getReplacementKm() : 0L;
-
-        Long remainingKm = null;
-        if (item.getReplacementKm() != null) {
-            remainingKm = item.getReplacementKm() - (lastReplacementKm != null ? lastReplacementKm : 0L);
-        }
-
-        String lastReplacementDate = "정보 없음";
-        LocalDate lastReplacementDateObj = null;
-        if (latestHistory != null && latestHistory.getReplacementDate() != null) {
-            lastReplacementDateObj = latestHistory.getReplacementDate();
-            lastReplacementDate = lastReplacementDateObj.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
-        }
-
-        String replacementCycleText = buildReplacementCycleText(item);
-
-        Long remainingDays = calculateRemainingDays(item, lastReplacementDateObj);
-
-        String status = determineStatus(remainingKm, remainingDays);
-
-        int progress = calculateProgress(item, remainingKm, remainingDays);
-
-        return new MaintenanceItemResponse(
-                item.getId(),
-                item.getName(),
-                item.getMaintenanceItemCategory().name(),
-                replacementCycleText,
-                lastReplacementDate,
-                status,
-                progress
-        );
-    }
 
     private MaintenanceItemDetailResponse convertToDetailedResponse(MaintenanceItem item) {
         MaintenanceHistory latestHistory = getLatestMaintenanceHistory(item);
@@ -205,18 +159,6 @@ public class MaintenanceItemService {
     }
 
 
-    private String buildReplacementCycleText(MaintenanceItem item) {
-        if (item.getReplacementCycle() != null && item.getReplacementKm() != null) {
-            return String.format("매 %d km 또는 %d개월", item.getReplacementKm(), item.getReplacementCycle());
-        } else if (item.getReplacementCycle() != null) {
-            return String.format("매 %d km", item.getReplacementCycle());
-        } else if (item.getReplacementKm() != null) {
-            return String.format("매 %d개월", item.getReplacementKm());
-        } else {
-            return "상태 확인 필요";
-        }
-    }
-
     private Long calculateRemainingDays(MaintenanceItem item, LocalDate lastReplacementDate) {
         if (item.getReplacementCycle() == null || lastReplacementDate == null) {
             return Long.MAX_VALUE;
@@ -235,32 +177,6 @@ public class MaintenanceItemService {
             return "주의";
         } else {
             return "양호";
-        }
-    }
-
-    private int calculateProgress(MaintenanceItem item, Long remainingKm, Long remainingDays) {
-        Integer kmProgress = null;
-        Integer dayProgress = null;
-
-        if (item.getReplacementKm() != null && remainingKm != null) {
-            double kmRatio = (double) remainingKm / item.getReplacementKm();
-            kmProgress = (int) Math.max(0, Math.min(100, kmRatio * 100));
-        }
-
-        if (item.getReplacementCycle() != null && remainingDays != null && remainingDays != Long.MAX_VALUE) {
-            long totalDays = item.getReplacementCycle() * 30L;
-            double dayRatio = (double) remainingDays / totalDays;
-            dayProgress = (int) Math.max(0, Math.min(100, dayRatio * 100));
-        }
-
-        if (kmProgress != null && dayProgress != null) {
-            return Math.min(kmProgress, dayProgress);
-        } else if (kmProgress != null) {
-            return kmProgress;
-        } else if (dayProgress != null) {
-            return dayProgress;
-        } else {
-            return 0;
         }
     }
 

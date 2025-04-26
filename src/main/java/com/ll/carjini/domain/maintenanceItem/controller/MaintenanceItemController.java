@@ -12,6 +12,10 @@ import com.ll.carjini.global.exception.CustomException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,32 +30,16 @@ public class MaintenanceItemController {
     private final MaintenanceItemService maintenanceItemService;
 
     @GetMapping
-    @Operation(summary = "차량 정비 아이템들 조회", description = "사용자의 차량 정비 아이템들을 조회합니다. Status는 교체일에서 30일이 남았거나 500 km가 남았을 때 주의, 아니면 양호, 때를 지났다면 교체 필요라고 뜹니다.")
-    public GlobalResponse<List<MaintenanceItemResponse>> getMaintenanceItems(
+    @Operation(summary = "차량 정비 아이템들 조회", description = "사용자의 차량 정비 아이템들을 조회합니다. 스웨거 쓸 때 pageable 파라미터에 sort 에는 'createdAt' 넣거나, 아예 sort 항목을 지워도 됩니다. ")
+    public GlobalResponse<Page<MaintenanceItemDetailResponse>> getMaintenanceItems(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
-            @PathVariable Long carOwnerId
+            @PathVariable Long carOwnerId,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         try {
             Long memberId = principalDetails.user().getId();
-
-            return GlobalResponse.success(maintenanceItemService.getMaintenanceItems(carOwnerId, memberId));
-        }catch(Exception e){
-            throw new CustomException(ErrorCode.ACCESS_DENIED);
-        }
-    }
-
-    @GetMapping("/{id}")
-    @Operation(summary = "차량 정비 아이템 조회", description = "사용자의 차량 정비 아이템을 조회합니다.")
-    public GlobalResponse<MaintenanceItemDetailResponse> getMaintenanceItem(
-            @AuthenticationPrincipal PrincipalDetails principalDetails,
-            @PathVariable Long id,
-            @PathVariable Long carOwnerId
-    ) {
-        try{
-            Long memberId = principalDetails.user().getId();
-
-            return GlobalResponse.success(maintenanceItemService.getMaintenanceItem(carOwnerId, memberId, id));
-        }catch(Exception e){
+            return GlobalResponse.success(maintenanceItemService.getMaintenanceItem(carOwnerId, memberId, pageable));
+        } catch (Exception e) {
             throw new CustomException(ErrorCode.ENTITY_NOT_FOUND);
         }
     }

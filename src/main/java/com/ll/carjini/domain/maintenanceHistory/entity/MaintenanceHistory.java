@@ -26,15 +26,4 @@ public class MaintenanceHistory extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "car_owner_id", nullable = false)
     private CarOwner carOwner;
-
-    @PrePersist
-    public void setDefaultValues() {
-        if (this.replacementDate == null && this.carOwner != null) {
-            this.replacementDate = this.carOwner.getStartDate();
-        }
-
-        if (this.replacementKm == null && this.carOwner != null) {
-            this.replacementKm = this.carOwner.getStartKm() + this.carOwner.getNowKm();
-        }
-    }
 }

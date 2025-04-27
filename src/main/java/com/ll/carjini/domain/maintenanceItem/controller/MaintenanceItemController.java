@@ -30,7 +30,7 @@ public class MaintenanceItemController {
     private final MaintenanceItemService maintenanceItemService;
 
     @GetMapping
-    @Operation(summary = "차량 정비 아이템들 조회", description = "사용자의 차량 정비 아이템들을 조회합니다. 스웨거 쓸 때 pageable 파라미터에 sort 에는 'createdAt' 넣거나, 아예 sort 항목을 지워도 됩니다. ")
+    @Operation(summary = "차량 정비 아이템들 조회", description = "사용자의 차량 정비 아이템들을 조회합니다. 스웨거 쓸 때 pageable 파라미터에 sort 에는 'createdAt' 넣거나, 아예 sort 항목을 지워도 됩니다.  ")
     public GlobalResponse<Page<MaintenanceItemDetailResponse>> getMaintenanceItems(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable Long carOwnerId,

@@ -28,12 +28,12 @@ public class MaintenanceItem extends BaseEntity {
     private MaintenanceItemCategory maintenanceItemCategory;
 
     @Column(nullable = true)
-    private Long replacementCycle;
+    private Long replacementCycle; //교제주기(개월)
 
-    private boolean cycleAlarm;
+    private boolean cycleAlarm; //알람 울리는 여부
 
     @Column(nullable = true)
-    private Long replacementKm;
+    private Long replacementKm; //교체주기(km)
 
     private boolean kmAlarm;
 

@@ -48,7 +48,7 @@ public class MaintenanceItemService {
 
     @Transactional
     public MaintenanceItem create(Long carOwnerId, Long memberId, String name, MaintenanceItemCategory category,
-                                  Long replacementCycle, Long replacementKm) {
+                                  Long replacementCycle, boolean cycleAlarm,  Long replacementKm, boolean kmAlarm) {
 
         CarOwner carOwner = validateCarOwnerAccess(carOwnerId, memberId);
 
@@ -57,24 +57,19 @@ public class MaintenanceItemService {
                 .name(name)
                 .maintenanceItemCategory(category)
                 .replacementCycle(replacementCycle)
+                .cycleAlarm(cycleAlarm)
                 .replacementKm(replacementKm)
+                .kmAlarm(kmAlarm)
                 .build();
 
         maintenanceItem = maintenanceItemRepository.save(maintenanceItem);
-
-        MaintenanceHistory maintenanceHistory = MaintenanceHistory.builder()
-                .maintenanceItem(maintenanceItem)
-                .carOwner(carOwner)
-                .build();
-
-        maintenanceHistoryRepository.save(maintenanceHistory);
 
         return maintenanceItem;
     }
 
     @Transactional
     public MaintenanceItem update(Long carOwnerId, Long memberId, Long id, String name, MaintenanceItemCategory category,
-                                   Long replacementCycle, Long replacementKm) {
+                                  Long replacementCycle, boolean cycleAlarm,  Long replacementKm, boolean kmAlarm) {
 
         CarOwner carOwner = validateCarOwnerAccess(carOwnerId, memberId);
 
@@ -85,6 +80,8 @@ public class MaintenanceItemService {
         item.setName(name);
         item.setMaintenanceItemCategory(category);
         item.setReplacementCycle(replacementCycle);
+        item.setKmAlarm(kmAlarm);
+        item.setCycleAlarm(cycleAlarm);
         item.setReplacementKm(replacementKm);
 
         return item;

@@ -55,7 +55,7 @@ public class MaintenanceItemController {
 
             MaintenanceItemCategory category = MaintenanceItemCategory.valueOf(dto.getCategory().toUpperCase());
 
-            maintenanceItemService.create(carOwnerId, memberId, dto.getName(), category, dto.getReplacementCycle(), dto.getReplacementKm());
+            maintenanceItemService.create(carOwnerId, memberId, dto.getName(), category, dto.getReplacementCycle(), dto.isCycleAlarm(), dto.getReplacementKm(), dto.isKmAlarm());
 
             return GlobalResponse.success("정비 항목이 생성되었습니다.");
         }catch(Exception e){
@@ -84,7 +84,9 @@ public class MaintenanceItemController {
                     dto.getName(),
                     category,
                     dto.getReplacementCycle(),
-                    dto.getReplacementKm()
+                    dto.isCycleAlarm(),
+                    dto.getReplacementKm(),
+                    dto.isKmAlarm()
             );
             return GlobalResponse.success("정비 항목이 수정되었습니다.");
         }catch(Exception e){

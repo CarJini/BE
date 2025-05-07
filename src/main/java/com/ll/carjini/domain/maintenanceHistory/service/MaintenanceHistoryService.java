@@ -19,13 +19,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MaintenanceHistoryService {
     private final MaintenanceItemRepository maintenanceItemRepository;
     private final MaintenanceHistoryRepository maintenanceHistoryRepository;
     private final CarOwnerRepository carOwnerRepository;
 
-    public List<MaintenanceHistoryResponse> getMaintenanceHistories(Long userId, Long carOwnerId) {
+    public List<MaintenanceHistoryResponse> getMaintenanceHistories(Long userId, Long carOwnerId, Long maintenanceItemId) {
+        MaintenanceItem maintenanceItem = maintenanceItemRepository.findById(maintenanceItemId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
+
         CarOwner carOwner = carOwnerRepository.findById(carOwnerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
@@ -33,7 +37,7 @@ public class MaintenanceHistoryService {
             throw new CustomException(ErrorCode.ACCESS_DENIED);
         }
 
-        List<MaintenanceHistory> histories = maintenanceHistoryRepository.findByCarOwnerId(carOwnerId);
+        List<MaintenanceHistory> histories = maintenanceItem.getMaintenanceHistories();
         return histories.stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());

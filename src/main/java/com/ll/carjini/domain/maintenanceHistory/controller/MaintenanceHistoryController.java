@@ -26,10 +26,11 @@ public class MaintenanceHistoryController {
     @Operation(summary = "차량 정비 이력들 조회", description = "사용자의 차량 정비 이력들을 조회합니다.")
     public GlobalResponse<List<MaintenanceHistoryResponse>> getMaintenanceHistories(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
-            @PathVariable Long carOwnerId
+            @PathVariable Long carOwnerId,
+            @PathVariable Long maintenanceItemId
     ) {
         try {
-            List<MaintenanceHistoryResponse> responses = maintenanceHistoryService.getMaintenanceHistories(principalDetails.user().getId(), carOwnerId);
+            List<MaintenanceHistoryResponse> responses = maintenanceHistoryService.getMaintenanceHistories(principalDetails.user().getId(),carOwnerId, maintenanceItemId);
             return GlobalResponse.success(responses);
         } catch(Exception e) {
             throw new CustomException(ErrorCode.ACCESS_DENIED);

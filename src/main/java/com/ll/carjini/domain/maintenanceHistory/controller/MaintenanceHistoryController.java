@@ -29,12 +29,8 @@ public class MaintenanceHistoryController {
             @PathVariable Long carOwnerId,
             @PathVariable Long maintenanceItemId
     ) {
-        try {
             List<MaintenanceHistoryResponse> responses = maintenanceHistoryService.getMaintenanceHistories(principalDetails.user().getId(),carOwnerId, maintenanceItemId);
             return GlobalResponse.success(responses);
-        } catch(Exception e) {
-            throw new CustomException(ErrorCode.ACCESS_DENIED);
-        }
     }
 
     @PostMapping
@@ -58,12 +54,8 @@ public class MaintenanceHistoryController {
             @PathVariable Long maintenanceItemId,
             @RequestBody MaintenanceHistoryRequest dto
     ) {
-        try {
             maintenanceHistoryService.updateMaintenanceHistory(principalDetails.user().getId(), carOwnerId,maintenanceItemId, id, dto);
             return GlobalResponse.success("정비 이력이 수정되었습니다.");
-        } catch(Exception e) {
-            throw new CustomException(ErrorCode.ENTITY_NOT_FOUND);
-        }
     }
 
     @DeleteMapping("/{id}")
@@ -73,11 +65,7 @@ public class MaintenanceHistoryController {
             @PathVariable Long carOwnerId,
             @PathVariable Long maintenanceItemId,
             @PathVariable Long id) {
-        try {
             maintenanceHistoryService.deleteMaintenanceHistory(principalDetails.user().getId(), carOwnerId, maintenanceItemId, id);
             return GlobalResponse.success("정비 이력이 삭제되었습니다.");
-        } catch(Exception e) {
-            throw new CustomException(ErrorCode.ENTITY_NOT_FOUND);
-        }
     }
 }

@@ -5,12 +5,14 @@ import com.ll.carjini.domain.carOwner.repository.CarOwnerRepository;
 import com.ll.carjini.domain.maintenanceHistory.dto.MaintenanceHistoryRequest;
 import com.ll.carjini.domain.maintenanceHistory.dto.MaintenanceHistoryResponse;
 import com.ll.carjini.domain.maintenanceHistory.entity.MaintenanceHistory;
+import com.ll.carjini.domain.maintenanceHistory.event.MaintenanceHistoryEvent;
 import com.ll.carjini.domain.maintenanceHistory.repository.MaintenanceHistoryRepository;
 import com.ll.carjini.domain.maintenanceItem.entity.MaintenanceItem;
 import com.ll.carjini.domain.maintenanceItem.repository.MaintenanceItemRepository;
 import com.ll.carjini.global.error.ErrorCode;
 import com.ll.carjini.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,7 @@ public class MaintenanceHistoryService {
     private final MaintenanceItemRepository maintenanceItemRepository;
     private final MaintenanceHistoryRepository maintenanceHistoryRepository;
     private final CarOwnerRepository carOwnerRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public List<MaintenanceHistoryResponse> getMaintenanceHistories(Long userId, Long carOwnerId, Long maintenanceItemId) {
         MaintenanceItem maintenanceItem = maintenanceItemRepository.findById(maintenanceItemId)
@@ -76,6 +79,7 @@ public class MaintenanceHistoryService {
                 .build();
 
         maintenanceHistoryRepository.save(history);
+        eventPublisher.publishEvent(new MaintenanceHistoryEvent(carOwnerId));
     }
 
     @Transactional
@@ -104,6 +108,7 @@ public class MaintenanceHistoryService {
         history.setReplacementKm(dto.getReplacementKm());
 
         maintenanceHistoryRepository.save(history);
+        eventPublisher.publishEvent(new MaintenanceHistoryEvent(carOwnerId));
     }
 
     @Transactional
@@ -111,23 +116,21 @@ public class MaintenanceHistoryService {
         CarOwner carOwner = carOwnerRepository.findById(carOwnerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
-        // 사용자가 이 차량에 접근 권한이 있는지 확인
         if (!carOwner.getMember().getId().equals(userId)) {
             throw new CustomException(ErrorCode.ACCESS_DENIED);
         }
 
-        // 정비 항목 찾기
        maintenanceItemRepository.findById(maintenanceItemId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
         MaintenanceHistory history = maintenanceHistoryRepository.findById(historyId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
-        // 이 이력이 지정된 차량 소유자에게 속하는지 확인
         if (!history.getCarOwner().getId().equals(carOwnerId)) {
             throw new CustomException(ErrorCode.ENTITY_NOT_FOUND);
         }
 
         maintenanceHistoryRepository.delete(history);
+        eventPublisher.publishEvent(new MaintenanceHistoryEvent(carOwnerId));
     }
 }

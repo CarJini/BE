@@ -26,12 +26,12 @@ public class MemberController {
 
     @PutMapping("/fcm-token")
     @Operation(summary = "FCM 토큰 업데이트", description = "FCM 토큰을 업데이트합니다.")
-    public ResponseEntity<Void> updateFcmToken(
+    public GlobalResponse<Void> updateFcmToken(
             @RequestBody FCMTokenRequest request,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
         memberService.updateFcmToken(principalDetails.user().getId(), request.getFcmToken());
-        return ResponseEntity.ok().build();
+        return GlobalResponse.success();
     }
 
     @GetMapping
@@ -49,13 +49,13 @@ public class MemberController {
     @PutMapping("/nickname")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "회원 닉네임 수정", description = "회원의 닉네임을 수정합니다.")
-    public ResponseEntity<MemberDto> updateNickname(
+    public GlobalResponse<MemberDto> updateNickname(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @RequestBody @Valid UpdateNicknameRequest request
     ) {
         Long memberId = principalDetails.user().getId();
         MemberDto updatedMember = memberService.updateNickname(memberId, request.getNickname());
 
-        return ResponseEntity.ok(updatedMember);
+        return GlobalResponse.success(updatedMember);
     }
 }

@@ -67,4 +67,17 @@ public class ExceptionControllerAdvice {
         return ErrorResponse.toResponseEntity(ErrorCode.INTERNAL_SERVER_ERROR);
     }
 
+    public class CarOwnerNotFoundException extends CustomException {
+        public CarOwnerNotFoundException() {
+            super(ErrorCode.ENTITY_NOT_FOUND);
+        }
+    }
+
+    public class UnauthorizedCarOwnerAccessException extends CustomException {
+        public UnauthorizedCarOwnerAccessException() {
+            super(ErrorCode.ACCESS_DENIED);
+        }
+    }
+
+
 }

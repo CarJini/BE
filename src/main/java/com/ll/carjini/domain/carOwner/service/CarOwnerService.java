@@ -6,7 +6,13 @@ import com.ll.carjini.domain.carOwner.dto.CarOwnerRequest;
 import com.ll.carjini.domain.carOwner.dto.CarOwnerResponse;
 import com.ll.carjini.domain.carOwner.entity.CarOwner;
 import com.ll.carjini.domain.carOwner.repository.CarOwnerRepository;
+import com.ll.carjini.domain.chatbot.repository.ChatRepository;
+import com.ll.carjini.domain.maintenanceHistory.repository.MaintenanceHistoryRepository;
+import com.ll.carjini.domain.maintenanceItem.entity.MaintenanceItem;
+import com.ll.carjini.domain.maintenanceItem.repository.MaintenanceItemRepository;
 import com.ll.carjini.domain.member.entity.Member;
+import com.ll.carjini.global.error.ErrorCode;
+import com.ll.carjini.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +27,14 @@ import java.util.stream.Collectors;
 public class CarOwnerService {
     private final CarOwnerRepository carOwnerRepository;
     private final CarRepository carRepository;
+    private final MaintenanceItemRepository maintenanceItemRepository;
+    private final MaintenanceHistoryRepository maintenanceHistoryRepository;
+    private final ChatRepository chatRepository;
 
     @Transactional
     public CarOwnerResponse createCarOwner(Member member, CarOwnerRequest carOwnerRequest) {
         Car car = carRepository.findById(carOwnerRequest.getCarId())
-                .orElseThrow(() -> new RuntimeException("Car not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
         CarOwner carOwner = CarOwner.builder()
                 .member(member)
@@ -44,10 +53,10 @@ public class CarOwnerService {
     public CarOwnerResponse updateCarOwner(Member member, Long carOwnerId, CarOwnerRequest carOwnerRequest) {
 
         CarOwner carOwner = carOwnerRepository.findById(carOwnerId)
-                .orElseThrow(() -> new RuntimeException("Car owner not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
         Car car = carRepository.findById(carOwnerRequest.getCarId())
-                    .orElseThrow(() -> new RuntimeException("Car not found"));
+                    .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
         carOwner.setCar(car);
         carOwner.setStartDate(carOwnerRequest.getStartDate());
@@ -59,8 +68,6 @@ public class CarOwnerService {
         return CarOwnerResponse.of(savedCarOwner);
     }
 
-
-
     public List<CarOwnerResponse> getCarOwnersByMember(Member member) {
         List<CarOwner> carOwners = carOwnerRepository.findByMember(member);
 
@@ -70,15 +77,21 @@ public class CarOwnerService {
     }
 
 
-
     @Transactional
     public void deleteCarOwner(Long carOwnerId, Member member) {
         CarOwner carOwner = carOwnerRepository.findById(carOwnerId)
-                .orElseThrow(() -> new RuntimeException("CarOwner not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
         if (!carOwner.getMember().getId().equals(member.getId())) {
-            throw new RuntimeException("You don't have permission to delete this car owner record");
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
         }
+
+        List<MaintenanceItem> maintenanceItems = maintenanceItemRepository.findByCarOwner(carOwner);
+        for (MaintenanceItem item : maintenanceItems) {
+            maintenanceHistoryRepository.deleteByMaintenanceItem(item);
+        }
+        maintenanceItemRepository.deleteAll(maintenanceItems);
+//        chatRepository.deleteByCarOwnerId(carOwnerId);
 
         carOwnerRepository.delete(carOwner);
     }

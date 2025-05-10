@@ -8,4 +8,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface ChatRepository extends MongoRepository<Chat, String> {
     Page<Chat> findByCarOwnerId(Long userId, Pageable pageable);
+
+    void deleteByCarOwnerId(Long carOwnerId);
 }

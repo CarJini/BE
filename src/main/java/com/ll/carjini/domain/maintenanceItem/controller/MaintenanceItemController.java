@@ -36,12 +36,8 @@ public class MaintenanceItemController {
             @PathVariable Long carOwnerId,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        try {
             Long memberId = principalDetails.user().getId();
             return GlobalResponse.success(maintenanceItemService.getMaintenanceItem(carOwnerId, memberId, pageable));
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.ENTITY_NOT_FOUND);
-        }
     }
 
     @PostMapping
@@ -50,7 +46,6 @@ public class MaintenanceItemController {
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @RequestBody MaintenanceItemRequest dto,
             @PathVariable Long carOwnerId) {
-        try {
             Long memberId = principalDetails.user().getId();
 
             MaintenanceItemCategory category = MaintenanceItemCategory.valueOf(dto.getCategory().toUpperCase());
@@ -58,9 +53,6 @@ public class MaintenanceItemController {
             maintenanceItemService.create(carOwnerId, memberId, dto.getName(), category, dto.getReplacementCycle(), dto.isCycleAlarm(), dto.getReplacementKm(), dto.isKmAlarm());
 
             return GlobalResponse.success("정비 항목이 생성되었습니다.");
-        }catch(Exception e){
-            throw new CustomException(ErrorCode.ENTITY_NOT_FOUND);
-        }
     }
 
 
@@ -72,7 +64,6 @@ public class MaintenanceItemController {
             @PathVariable Long carOwnerId,
             @RequestBody MaintenanceItemRequest dto
     ) {
-        try{
             Long memberId = principalDetails.user().getId();
 
             MaintenanceItemCategory category = MaintenanceItemCategory.valueOf(dto.getCategory().toUpperCase());
@@ -89,9 +80,6 @@ public class MaintenanceItemController {
                     dto.isKmAlarm()
             );
             return GlobalResponse.success("정비 항목이 수정되었습니다.");
-        }catch(Exception e){
-            throw new CustomException(ErrorCode.ENTITY_NOT_FOUND);
-        }
     }
 
 
@@ -108,7 +96,7 @@ public class MaintenanceItemController {
         if (isDeleted) {
             return GlobalResponse.success("정비 항목이 삭제되었습니다.");
         }
-        throw new CustomException(ErrorCode.ENTITY_NOT_FOUND);
+        throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
     }
 
 }

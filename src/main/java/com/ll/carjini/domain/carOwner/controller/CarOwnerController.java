@@ -32,13 +32,9 @@ public class CarOwnerController {
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @RequestBody CarOwnerRequest carOwnerRequest
     ) {
-        try {
             Member member = principalDetails.user();
             CarOwnerResponse response = carOwnerService.createCarOwner(member, carOwnerRequest);
             return GlobalResponse.success(response);
-        } catch (Exception e) {
-            return GlobalResponse.error(ErrorCode.ENTITY_NOT_FOUND);
-        }
     }
 
     @GetMapping
@@ -46,14 +42,10 @@ public class CarOwnerController {
     public GlobalResponse<?> getMyCarOwners(
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
-        try {
             Member member = principalDetails.user();
             List<CarOwnerResponse> responses = carOwnerService.getCarOwnersByMember(member);
             return GlobalResponse.success(responses);
-        } catch (Exception e) {
-            return GlobalResponse.error(ErrorCode.ENTITY_NOT_FOUND);
-        }
-    }
+         }
 
     @PutMapping("/{carOwnerId}")
     @Operation(summary = "차량 정보 수정", description = "사용자의 차량 정보를 수정합니다.")
@@ -62,13 +54,9 @@ public class CarOwnerController {
             @PathVariable Long carOwnerId,
             @RequestBody CarOwnerRequest carOwnerRequest
     ) {
-        try {
             Member member = principalDetails.user();
             CarOwnerResponse response = carOwnerService.updateCarOwner(member, carOwnerId, carOwnerRequest);
             return GlobalResponse.success(response);
-        } catch (Exception e) {
-            return GlobalResponse.error(ErrorCode.ENTITY_NOT_FOUND);
-        }
     }
 
     @DeleteMapping("/{carOwnerId}")
@@ -77,12 +65,8 @@ public class CarOwnerController {
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable Long carOwnerId
     ) {
-        try {
             Member member = principalDetails.user();
             carOwnerService.deleteCarOwner(carOwnerId, member);
             return GlobalResponse.success();
-        } catch (Exception e) {
-            return GlobalResponse.error(ErrorCode.ENTITY_NOT_FOUND);
-        }
     }
 }

@@ -9,6 +9,8 @@ import com.ll.carjini.domain.maintenanceItem.dto.MaintenanceItemResponse;
 import com.ll.carjini.domain.maintenanceItem.entity.MaintenanceItem;
 import com.ll.carjini.domain.maintenanceItem.entity.MaintenanceItemCategory;
 import com.ll.carjini.domain.maintenanceItem.repository.MaintenanceItemRepository;
+import com.ll.carjini.global.error.ErrorCode;
+import com.ll.carjini.global.exception.CustomException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,15 +34,14 @@ import java.util.stream.Collectors;
 public class MaintenanceItemService {
 
     private final MaintenanceItemRepository maintenanceItemRepository;
-    private final MaintenanceHistoryRepository maintenanceHistoryRepository;
     private final CarOwnerRepository carOwnerRepository;
 
     private CarOwner validateCarOwnerAccess(Long carOwnerId, Long memberId) {
         CarOwner carOwner = carOwnerRepository.findByIdWithMember(carOwnerId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 차량 소유 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
         if (!carOwner.getMember().getId().equals(memberId)) {
-            throw new AccessDeniedException("해당 차량의 정비 항목을 조회할 권한이 없습니다.");
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
         }
 
         return carOwner;

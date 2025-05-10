@@ -10,4 +10,6 @@ import java.util.List;
 
 public interface MaintenanceItemRepository extends JpaRepository<MaintenanceItem, Long> {
     Page<MaintenanceItem> findByCarOwner(CarOwner carOwner, Pageable pageable);
+    List<MaintenanceItem> findByCarOwner(CarOwner carOwner);
+    List<MaintenanceItem> findByCarOwnerId(Long carOwnerId);
 }

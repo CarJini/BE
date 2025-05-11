@@ -32,7 +32,7 @@ public class GoogleAuthController {
     private final GoogleProperties googleProperties;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
-    private List<String> googleClientId;
+    private String googleClientId;
 
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String googleClientSecret;
@@ -79,7 +79,7 @@ public class GoogleAuthController {
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
                     new NetHttpTransport(),
                     JacksonFactory.getDefaultInstance()
-            ).setAudience(googleClientId)
+            ).setAudience(googleProperties.getClientIds())
                     .build();
 
             GoogleIdToken token = verifier.verify(idToken);
@@ -126,7 +126,7 @@ public class GoogleAuthController {
 
             Map<String, String> requestBody = new HashMap<>();
             requestBody.put("code", code);
-            requestBody.put("client_id", googleClientId.get(0));
+            requestBody.put("client_id", googleClientId);
             requestBody.put("client_secret", googleClientSecret);
             requestBody.put("redirect_uri", googleRedirectUrl);
             requestBody.put("grant_type", "authorization_code");

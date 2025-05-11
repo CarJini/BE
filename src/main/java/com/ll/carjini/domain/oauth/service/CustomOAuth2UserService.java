@@ -1,7 +1,5 @@
 package com.ll.carjini.domain.oauth.service;
 
-import com.ll.carjini.domain.member.entity.AuthProvider;
-import com.ll.carjini.domain.member.entity.Role;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
@@ -19,7 +17,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service

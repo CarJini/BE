@@ -57,6 +57,7 @@ public class SecurityConfig {
                                 "/",
                                 "auth/google/**",
                                 "/auth/token/verify",
+                                "/api/auth/google/mobile",
                                 "/api/auth/login/google",
                                 "/ws/**",
                                 "/auth/google/redirect",

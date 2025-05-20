@@ -30,12 +30,16 @@ public class MaintenanceItem extends BaseEntity {
     @Column(nullable = true)
     private Long replacementCycle; //교제주기(개월)
 
-    private boolean cycleAlarm; //알람 울리는 여부
-
     @Column(nullable = true)
     private Long replacementKm; //교체주기(km)
 
-    private boolean kmAlarm;
+    private boolean alarm; //주기알림여부
+
+    private Long remainingKm; // 남은 주행거리
+    private Long remainingDays; // 남은 주행일수
+    private int progressKm; // 진행된 주행거리
+    private int progressDays; // 진행된 주행일수
+    private String status; // 교체상태
 
     @OneToMany(mappedBy = "maintenanceItem", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MaintenanceHistory> maintenanceHistories;

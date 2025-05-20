@@ -2,7 +2,6 @@ package com.ll.carjini.domain.maintenanceItem.controller;
 
 import com.ll.carjini.domain.maintenanceItem.dto.MaintenanceItemDetailResponse;
 import com.ll.carjini.domain.maintenanceItem.dto.MaintenanceItemRequest;
-import com.ll.carjini.domain.maintenanceItem.dto.MaintenanceItemResponse;
 import com.ll.carjini.domain.maintenanceItem.entity.MaintenanceItemCategory;
 import com.ll.carjini.domain.maintenanceItem.service.MaintenanceItemService;
 import com.ll.carjini.domain.oauth.entity.PrincipalDetails;
@@ -50,7 +49,7 @@ public class MaintenanceItemController {
 
             MaintenanceItemCategory category = MaintenanceItemCategory.valueOf(dto.getCategory().toUpperCase());
 
-            maintenanceItemService.create(carOwnerId, memberId, dto.getName(), category, dto.getReplacementCycle(), dto.isCycleAlarm(), dto.getReplacementKm(), dto.isKmAlarm());
+            maintenanceItemService.create(carOwnerId, memberId, dto.getName(), category, dto.getReplacementCycle(), dto.getReplacementKm(), dto.isAlarm());
 
             return GlobalResponse.success("정비 항목이 생성되었습니다.");
     }
@@ -75,9 +74,8 @@ public class MaintenanceItemController {
                     dto.getName(),
                     category,
                     dto.getReplacementCycle(),
-                    dto.isCycleAlarm(),
                     dto.getReplacementKm(),
-                    dto.isKmAlarm()
+                    dto.isAlarm()
             );
             return GlobalResponse.success("정비 항목이 수정되었습니다.");
     }

@@ -15,9 +15,9 @@ public class MaintenanceItemDetailResponse {
     private Long replacementCycle;
     private Long remainingKm;            // 남은 거리 (0 이하일 경우 "교체 필요")
     private Long remainingDay;
-    private boolean kmAlarm;
-    private boolean cycleAlarm;
+    private boolean alarm;
     private String status;               // 상태 (교체 필요 / 주의 / 양호)
     private int kmProgress;
     private int dayProgress;
+
 }

@@ -9,6 +9,7 @@ import com.ll.carjini.domain.maintenanceItem.dto.MaintenanceItemResponse;
 import com.ll.carjini.domain.maintenanceItem.entity.MaintenanceItem;
 import com.ll.carjini.domain.maintenanceItem.entity.MaintenanceItemCategory;
 import com.ll.carjini.domain.maintenanceItem.repository.MaintenanceItemRepository;
+import com.ll.carjini.domain.notification.service.NotificationService;
 import com.ll.carjini.global.error.ErrorCode;
 import com.ll.carjini.global.exception.CustomException;
 import jakarta.persistence.EntityNotFoundException;
@@ -35,6 +36,7 @@ public class MaintenanceItemService {
 
     private final MaintenanceItemRepository maintenanceItemRepository;
     private final CarOwnerRepository carOwnerRepository;
+    private final NotificationService notificationService;
 
     private CarOwner validateCarOwnerAccess(Long carOwnerId, Long memberId) {
         CarOwner carOwner = carOwnerRepository.findByIdWithMember(carOwnerId)
@@ -49,7 +51,7 @@ public class MaintenanceItemService {
 
     @Transactional
     public MaintenanceItem create(Long carOwnerId, Long memberId, String name, MaintenanceItemCategory category,
-                                  Long replacementCycle, boolean cycleAlarm,  Long replacementKm, boolean kmAlarm) {
+                                  Long replacementCycle,  Long replacementKm, boolean alarm) {
 
         CarOwner carOwner = validateCarOwnerAccess(carOwnerId, memberId);
 
@@ -58,19 +60,27 @@ public class MaintenanceItemService {
                 .name(name)
                 .maintenanceItemCategory(category)
                 .replacementCycle(replacementCycle)
-                .cycleAlarm(cycleAlarm)
                 .replacementKm(replacementKm)
-                .kmAlarm(kmAlarm)
+                .alarm(alarm)
                 .build();
 
         maintenanceItem = maintenanceItemRepository.save(maintenanceItem);
 
+        // 🔥 여기 추가
+        updateProgress(
+                carOwner.getNowKm() + carOwner.getStartKm(),
+                carOwner.getStartDate(),
+                LocalDate.now(),
+                maintenanceItem
+        );
+
         return maintenanceItem;
     }
 
+
     @Transactional
     public MaintenanceItem update(Long carOwnerId, Long memberId, Long id, String name, MaintenanceItemCategory category,
-                                  Long replacementCycle, boolean cycleAlarm,  Long replacementKm, boolean kmAlarm) {
+                                  Long replacementCycle,  Long replacementKm, boolean alarm) {
 
         CarOwner carOwner = validateCarOwnerAccess(carOwnerId, memberId);
 
@@ -81,9 +91,10 @@ public class MaintenanceItemService {
         item.setName(name);
         item.setMaintenanceItemCategory(category);
         item.setReplacementCycle(replacementCycle);
-        item.setKmAlarm(kmAlarm);
-        item.setCycleAlarm(cycleAlarm);
+        item.setAlarm(alarm);
         item.setReplacementKm(replacementKm);
+
+        updateProgress(carOwner.getNowKm() + carOwner.getStartKm(), carOwner.getStartDate(), LocalDate.now(),item);
 
         return item;
     }
@@ -101,55 +112,78 @@ public class MaintenanceItemService {
 
     public Page<MaintenanceItemDetailResponse> getMaintenanceItem(Long carOwnerId, Long memberId, Pageable pageable) {
         CarOwner carOwner = validateCarOwnerAccess(carOwnerId, memberId);
-        Long km = carOwner.getNowKm() + carOwner.getStartKm();
-        log.info("차량 소유자 ID: {}, 현재 주행 거리: {}", carOwner.getId(), km);
-        LocalDate date= carOwner.getStartDate();
 
         return maintenanceItemRepository.findByCarOwner(carOwner, pageable)
-                .map(item -> convertToDetailedResponse(km, date, item));
+                .map(this::convertToDetailedResponse);
     }
 
-
-    private MaintenanceItemDetailResponse convertToDetailedResponse(Long km, LocalDate date, MaintenanceItem item) {
-        MaintenanceHistory latestHistory = getLatestMaintenanceHistory(item);
-
-        Long lastReplacementKm = (latestHistory != null && latestHistory.getReplacementKm() != null) ?
-                latestHistory.getReplacementKm() : 0L;
-
-        Long remainingKm = null;
-        if (item.getReplacementKm() != null) {
-            remainingKm = item.getReplacementKm() - (km - lastReplacementKm);
-        }
-        log.info("lastReplacementKm: {}, km:{}, remainingKm: {}", lastReplacementKm, km, remainingKm);
-
-        LocalDate lastReplacementDateObj = date;
-        if (latestHistory != null && latestHistory.getReplacementDate() != null) {
-            lastReplacementDateObj = latestHistory.getReplacementDate();
-        }
-
-        Long remainingDays = calculateRemainingDays(item, lastReplacementDateObj);
-
-        int progressKm = calculateKmProgress(item, remainingKm);
-
-        int progressDays = calculateDayProgress(item, remainingDays);
-
-        String status = determineStatus(progressKm, progressDays);
-
+    private MaintenanceItemDetailResponse convertToDetailedResponse(MaintenanceItem item) {
         return new MaintenanceItemDetailResponse(
                 item.getId(),
                 item.getName(),
                 item.getMaintenanceItemCategory().name(),
                 item.getReplacementKm(),
                 item.getReplacementCycle(),
-                remainingKm,
-                remainingDays,
-                item.isKmAlarm(),
-                item.isCycleAlarm(),
-                status,
-                progressKm,
-                progressDays
+                item.getRemainingKm(),
+                item.getRemainingDays(),
+                item.isAlarm(),
+                item.getStatus(),
+                item.getProgressKm(),
+                item.getProgressDays()
         );
     }
+
+
+
+    @Transactional
+    public void updateProgress(Long nowKm, LocalDate nowDate, LocalDate today, MaintenanceItem item) {
+        MaintenanceHistory latestHistory = getLatestMaintenanceHistory(item);
+
+        Long lastReplacementKm = (latestHistory != null && latestHistory.getReplacementKm() != null)
+                ? latestHistory.getReplacementKm()
+                : 0L;
+
+        // 1. history와 nowDate 중 더 최신 날짜를 선택
+        LocalDate lastReplacementDateFromHistory = (latestHistory != null && latestHistory.getReplacementDate() != null)
+                ? latestHistory.getReplacementDate()
+                : item.getCarOwner().getStartDate();
+
+        LocalDate lastReplacementDate = nowDate.isAfter(lastReplacementDateFromHistory)
+                ? nowDate
+                : lastReplacementDateFromHistory;
+
+        // 2. 거리 기준 계산
+        Long remainingKm = item.getReplacementKm() != null
+                ? item.getReplacementKm() - (nowKm - lastReplacementKm)
+                : null;
+
+        // 3. 기간 기준 계산
+        Long remainingDays = item.getReplacementCycle() != null
+                ? ChronoUnit.DAYS.between(today, lastReplacementDate.plusMonths(item.getReplacementCycle()))
+                : Long.MAX_VALUE;
+
+        // 4. 진행률, 상태 계산
+        int progressKm = calculateKmProgress(item, remainingKm);
+        int progressDays = calculateDayProgress(item, remainingDays);
+        String newStatus = determineStatus(progressKm, progressDays);
+
+        // 5. 알람 처리
+        if ("점검 필요".equals(newStatus) && !item.isAlarm()) {
+            notificationService.sendNotification(
+                    item.getCarOwner().getMember(),
+                    String.format("%s 차량의 %s 정비 항목이 점검 필요 상태입니다.", item.getCarOwner().getCar().getModel(), item.getName())
+            );
+        }
+
+        // 6. 저장
+        item.setRemainingKm(remainingKm);
+        item.setRemainingDays(remainingDays);
+        item.setProgressKm(progressKm);
+        item.setProgressDays(progressDays);
+        item.setStatus(newStatus);
+    }
+
+
 
     private MaintenanceHistory getLatestMaintenanceHistory(MaintenanceItem item) {
         if (item.getMaintenanceHistories() == null || item.getMaintenanceHistories().isEmpty()) {
@@ -160,16 +194,6 @@ public class MaintenanceItemService {
                 .filter(history -> history.getReplacementDate() != null)
                 .max(Comparator.comparing(MaintenanceHistory::getReplacementDate))
                 .orElse(null);
-    }
-
-
-    private Long calculateRemainingDays(MaintenanceItem item, LocalDate lastReplacementDate) {
-        if (item.getReplacementCycle() == null || lastReplacementDate == null) {
-            return Long.MAX_VALUE;
-        }
-
-        LocalDate nextReplacementDate = lastReplacementDate.plusMonths(item.getReplacementCycle());
-        return ChronoUnit.DAYS.between(LocalDate.now(), nextReplacementDate);
     }
 
     private String determineStatus(int progressKm, int progressDays) {

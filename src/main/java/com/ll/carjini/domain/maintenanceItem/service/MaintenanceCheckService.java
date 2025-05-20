@@ -21,7 +21,7 @@ public class MaintenanceCheckService {
     private final MaintenanceItemRepository maintenanceItemRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(cron = "0 30 16 * * ?", zone = "Asia/Seoul")
     @Transactional(readOnly = true)
     public void checkMaintenanceItems() {
         List<MaintenanceItem> allItems = maintenanceItemRepository.findAll();

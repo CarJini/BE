@@ -87,7 +87,7 @@ public class NotificationController {
     /**
      * 알림 삭제
      */
-    @DeleteMapping("/{notificationId}")
+    @DeleteMapping("/{notificationId}") 
     @Operation(summary = "알림 삭제", description = "사용자의 알림을 삭제합니다.")
     public ResponseEntity<Void> deleteNotification(
             @PathVariable Long notificationId,

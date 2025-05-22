@@ -168,10 +168,11 @@ public class MaintenanceItemService {
         String newStatus = determineStatus(progressKm, progressDays);
 
         // 5. 알람 처리
-        if ("점검 필요".equals(newStatus) && !item.isAlarm()) {
-            notificationService.sendNotification(
+        if ("점검 필요".equals(newStatus) && item.isAlarm()) {
+            notificationService.sendMaintenanceNotification(
                     item.getCarOwner().getMember(),
-                    String.format("%s 차량의 %s 정비 항목이 점검 필요 상태입니다.", item.getCarOwner().getCar().getModel(), item.getName())
+                    String.format("%s 차량의 %s 정비 항목이 점검 필요 상태입니다.", item.getCarOwner().getCar().getModel(), item.getName()),
+                    item
             );
         }
 

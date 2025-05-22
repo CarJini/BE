@@ -10,6 +10,7 @@ import com.ll.carjini.domain.chatbot.repository.ChatRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
@@ -27,6 +28,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Primary
 public class ChatbotServiceImpl implements ChatbotService {
 
     private final RestTemplate restTemplate;

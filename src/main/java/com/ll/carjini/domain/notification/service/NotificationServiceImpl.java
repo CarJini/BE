@@ -29,36 +29,67 @@ public class NotificationServiceImpl implements NotificationService {
     private final FirebaseMessaging firebaseMessaging;
 
     @Override
-    public void sendNotification(Member member, String message) {
-        if (member == null || StringUtils.isEmpty(member.getFcmToken())) {
-            log.warn("알림을 보낼 수 없습니다: 사용자 정보 또는 FCM 토큰이 없습니다.");
-            return;
+    public void sendMaintenanceNotification(Member member, String message, MaintenanceItem item) {
+        if (StringUtils.isEmpty(member.getFcmToken())) {
+            log.warn("FCM 토큰이 없어 알림은 전송되지 않지만, 기록은 저장합니다.");
+        } else {
+            try {
+                com.google.firebase.messaging.Notification firebaseNotification =
+                        com.google.firebase.messaging.Notification.builder()
+                                .setTitle("차량 유지보수 알림")
+                                .setBody(message)
+                                .build();
+
+                Message fcmMessage = Message.builder()
+                        .setNotification(firebaseNotification)
+                        .putData("type", "MAINTENANCE_ALARM")
+                        .putData("time", String.valueOf(System.currentTimeMillis()))
+                        .setToken(member.getFcmToken())
+                        .build();
+
+                String response = firebaseMessaging.send(fcmMessage);
+                log.info("Firebase 알림 전송 완료: {}, 응답: {}", message, response);
+            } catch (FirebaseMessagingException e) {
+                log.error("Firebase 알림 전송 실패: {}", message, e);
+            }
         }
 
-        try {
-            com.google.firebase.messaging.Notification firebaseNotification =
-                    com.google.firebase.messaging.Notification.builder()
-                            .setTitle("차량 유지보수 알림")
-                            .setBody(message)
-                            .build();
-
-            Message fcmMessage = Message.builder()
-                    .setNotification(firebaseNotification)
-                    .putData("type", "MAINTENANCE_ALARM")
-                    .putData("time", String.valueOf(System.currentTimeMillis()))
-                    .setToken(member.getFcmToken())
-                    .build();
-
-            String response = firebaseMessaging.send(fcmMessage);
-            log.info("Firebase 알림 전송 완료: {}, 응답: {}", message, response);
-
-            saveNotification(member, "차량 유지보수 알림", message, Notification.NotificationType.MAINTENANCE_CYCLE, null);
-        } catch (FirebaseMessagingException e) {
-            log.error("Firebase 알림 전송 실패: {}", message, e);
-        }
+        // 알림 저장은 항상 수행
+        saveMaintenanceNotification(member, "차량 유지보수 알림", message, Notification.NotificationType.MAINTENANCE_ALARM, item);
     }
 
-    private Notification saveNotification(Member member, String title, String message,
+    @Override
+    public void sendSystemNotification(Member member, String message) {
+        if (StringUtils.isEmpty(member.getFcmToken())) {
+            log.warn("FCM 토큰이 없어 알림은 전송되지 않지만, 기록은 저장합니다.");
+        } else {
+            try {
+                com.google.firebase.messaging.Notification firebaseNotification =
+                        com.google.firebase.messaging.Notification.builder()
+                                .setTitle("차량 유지보수 알림")
+                                .setBody(message)
+                                .build();
+
+                Message fcmMessage = Message.builder()
+                        .setNotification(firebaseNotification)
+                        .putData("type", "MAINTENANCE_ALARM")
+                        .putData("time", String.valueOf(System.currentTimeMillis()))
+                        .setToken(member.getFcmToken())
+                        .build();
+
+                String response = firebaseMessaging.send(fcmMessage);
+                log.info("Firebase 알림 전송 완료: {}, 응답: {}", message, response);
+            } catch (FirebaseMessagingException e) {
+                log.error("Firebase 알림 전송 실패: {}", message, e);
+            }
+        }
+
+        // 알림 저장은 항상 수행
+        saveSystemNotification(member, "차량 유지보수 알림", message, Notification.NotificationType.SYSTEM);
+    }
+
+
+    private Notification saveMaintenanceNotification(Member member, String title, String message,
                                           Notification.NotificationType type, MaintenanceItem maintenanceItem) {
         Notification notification = new Notification();
         notification.setMember(member);
@@ -67,6 +98,18 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setType(type);
         notification.setRead(false);
         notification.setMaintenanceItem(maintenanceItem);
+
+        return notificationRepository.save(notification);
+    }
+
+    private Notification saveSystemNotification(Member member, String title, String message,
+                                                     Notification.NotificationType type) {
+        Notification notification = new Notification();
+        notification.setMember(member);
+        notification.setTitle(title);
+        notification.setMessage(message);
+        notification.setType(type);
+        notification.setRead(false);
 
         return notificationRepository.save(notification);
     }

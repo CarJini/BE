@@ -1,13 +1,16 @@
 package com.ll.carjini.domain.notification.service;
 
 
+import com.ll.carjini.domain.maintenanceItem.entity.MaintenanceItem;
 import com.ll.carjini.domain.member.entity.Member;
 import com.ll.carjini.domain.notification.dto.NotificationResponse;
 
 import java.util.List;
 
 public interface NotificationService {
-    void sendNotification(Member member, String message);
+    void sendMaintenanceNotification(Member member, String message, MaintenanceItem item);
+
+    void sendSystemNotification(Member member, String message);
 
     // 새로운 메서드들
     List<NotificationResponse> getNotificationsByMemberId(Long memberId);

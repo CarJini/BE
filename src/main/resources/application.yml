@@ -5,6 +5,8 @@ server:
   port: 8090
   shutdown: graceful
 spring:
+  jmx:
+    enabled: true
   config:
     import: "application-secret.yml"
   autoconfigure:
@@ -44,6 +46,10 @@ management:
     web:
       exposure:
         include: "health"  # /actuator/health 활성화
+
+    jmx:
+      exposure:
+        include: "*"
   endpoint:
     health:
       show-details: always  # 상태 확인 시 상세 정보 제공

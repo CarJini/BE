@@ -1,5 +1,8 @@
 package com.ll.carjini.domain.notification.controller;
 
+import com.ll.carjini.domain.member.entity.Member;
+import com.ll.carjini.domain.member.service.MemberService;
+import com.ll.carjini.domain.notification.dto.BroadcastNotificationRequest;
 import com.ll.carjini.domain.notification.dto.NotificationResponse;
 import com.ll.carjini.domain.notification.service.NotificationService;
 import com.ll.carjini.domain.oauth.entity.PrincipalDetails;
@@ -21,6 +24,19 @@ import java.util.List;
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final MemberService memberService;
+
+    @PostMapping("/system/broadcast")
+    @Operation(summary = "전체 시스템 알림 발송", description = "모든 사용자에게 시스템 알림을 발송합니다.")
+    public ResponseEntity<Void> sendSystemNotificationToAll(
+            @RequestBody BroadcastNotificationRequest request) {
+        List<Member> allMembers = memberService.findAll();
+        for (Member member : allMembers) {
+            notificationService.sendSystemNotification(member, request.getMessage());
+        }
+        return ResponseEntity.ok().build();
+    }
+
 
     /**
      * 사용자의 모든 알림 목록 조회

@@ -10,6 +10,8 @@ import com.ll.carjini.domain.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -35,4 +37,9 @@ public class MemberService {
 
         return MemberDto.of(savedMember);
     }
+    @Transactional(readOnly = true)
+    public List<Member> findAll() {
+        return memberRepository.findAll();
+    }
+
 }

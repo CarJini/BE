@@ -32,6 +32,6 @@ public class Notification extends BaseEntity {
     private MaintenanceItem maintenanceItem;
 
     public enum NotificationType {
-        MAINTENANCE_CYCLE, MAINTENANCE_KM, SYSTEM
+        MAINTENANCE_ALARM, SYSTEM
     }
 }

@@ -1,3 +1,4 @@
 *.json filter=lfs diff=lfs merge=lfs -text
 ê²src/main/resources/grandeur_qa_and_rag_keys_embed.json filter=lfs diff=lfs merge=lfs -text
 src/main/resources/grandeur_qa_and_rag_keys_embed.json filter=lfs diff=lfs merge=lfs -text
+src/main/resources/staria_qa_and_rag_keys_embed.json filter=lfs diff=lfs merge=lfs -text

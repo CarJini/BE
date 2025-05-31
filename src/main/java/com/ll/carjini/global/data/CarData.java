@@ -17,9 +17,8 @@ public class CarData {
         return args -> {
             if (carRepository.count() == 0) {
                 List<Car> cars = Arrays.asList(
-                        new Car("https://i.ibb.co/Z1X06T20/AVANTE-Hybrid.png", "Hyundai", "Sonata"),
-                        new Car("https://i.ibb.co/jZ6cHWds/SANTA-FE.png", "Kia", "K5"),
-                        new Car("https://i.ibb.co/HLPCHgWQ/SELTOS.png", "Samsung", "SM6")
+                        new Car("https://i.ibb.co/Z1X06T20/AVANTE-Hybrid.png", "Hyundai", "Staria"),
+                        new Car("https://i.ibb.co/jZ6cHWds/SANTA-FE.png", "Hyundai", "Grandeur")
                 );
 
                 carRepository.saveAll(cars);

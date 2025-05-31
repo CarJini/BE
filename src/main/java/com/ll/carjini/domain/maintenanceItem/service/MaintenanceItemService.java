@@ -9,6 +9,7 @@ import com.ll.carjini.domain.maintenanceItem.dto.MaintenanceItemResponse;
 import com.ll.carjini.domain.maintenanceItem.entity.MaintenanceItem;
 import com.ll.carjini.domain.maintenanceItem.entity.MaintenanceItemCategory;
 import com.ll.carjini.domain.maintenanceItem.repository.MaintenanceItemRepository;
+import com.ll.carjini.domain.notification.repository.NotificationRepository;
 import com.ll.carjini.domain.notification.service.NotificationService;
 import com.ll.carjini.global.error.ErrorCode;
 import com.ll.carjini.global.exception.CustomException;
@@ -36,6 +37,7 @@ public class MaintenanceItemService {
 
     private final MaintenanceItemRepository maintenanceItemRepository;
     private final CarOwnerRepository carOwnerRepository;
+    private final NotificationRepository notificationRepository;
     private final NotificationService notificationService;
 
     private CarOwner validateCarOwnerAccess(Long carOwnerId, Long memberId) {
@@ -105,6 +107,7 @@ public class MaintenanceItemService {
 
         if (maintenanceItemRepository.existsById(id)) {
             maintenanceItemRepository.deleteById(id);
+            notificationRepository.deleteByMaintenanceItem_Id(id);
             return true;
         }
         return false;

@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class NotificationResponse {
 
     private Long id;
+    private Long carId;
     private String title;
     private String message;
     private String type;

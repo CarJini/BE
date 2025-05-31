@@ -168,6 +168,7 @@ public class NotificationServiceImpl implements NotificationService {
     private NotificationResponse convertToDto(Notification notification) {
         return NotificationResponse.builder()
                 .id(notification.getId())
+                .carId(notification.getMaintenanceItem().getCarOwner().getId())
                 .title(notification.getTitle())
                 .message(notification.getMessage())
                 .type(notification.getType().name())

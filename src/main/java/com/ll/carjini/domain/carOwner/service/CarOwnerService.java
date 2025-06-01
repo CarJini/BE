@@ -10,6 +10,7 @@ import com.ll.carjini.domain.chatbot.repository.ChatRepository;
 import com.ll.carjini.domain.maintenanceHistory.repository.MaintenanceHistoryRepository;
 import com.ll.carjini.domain.maintenanceItem.entity.MaintenanceItem;
 import com.ll.carjini.domain.maintenanceItem.repository.MaintenanceItemRepository;
+import com.ll.carjini.domain.maintenanceItem.service.MaintenanceItemService;
 import com.ll.carjini.domain.member.entity.Member;
 import com.ll.carjini.global.error.ErrorCode;
 import com.ll.carjini.global.exception.CustomException;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +31,7 @@ public class CarOwnerService {
     private final CarRepository carRepository;
     private final MaintenanceItemRepository maintenanceItemRepository;
     private final MaintenanceHistoryRepository maintenanceHistoryRepository;
-    private final ChatRepository chatRepository;
+    private final MaintenanceItemService maintenanceItemService;
 
     @Transactional
     public CarOwnerResponse createCarOwner(Member member, CarOwnerRequest carOwnerRequest) {
@@ -64,6 +66,12 @@ public class CarOwnerService {
         carOwner.setNowKm(carOwnerRequest.getNowKm());
 
         CarOwner savedCarOwner = carOwnerRepository.save(carOwner);
+
+        List<MaintenanceItem> maintenanceItems = maintenanceItemRepository.findByCarOwner(carOwner);
+        for (MaintenanceItem item : maintenanceItems) {
+            maintenanceItemService.updateProgress(carOwner.getNowKm() + carOwner.getStartKm(), carOwner.getStartDate(), LocalDate.now(), item);
+            maintenanceItemRepository.save(item);
+        }
 
         return CarOwnerResponse.of(savedCarOwner);
     }

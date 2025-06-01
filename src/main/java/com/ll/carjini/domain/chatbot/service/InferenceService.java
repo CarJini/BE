@@ -372,35 +372,38 @@ public class InferenceService {
         return text.strip();
     }
 
-    public String postProcessAnswer(String raw, String prevAnswer) {
-        if (raw == null || raw.isEmpty()) {
+    public String postProcessAnswer(String rawAnswer, String prevAnswer) {
+        if (rawAnswer == null || rawAnswer.isEmpty()) {
             return "제공된 답변이 없습니다.";
         }
 
-        if (prevAnswer == null) {
-            prevAnswer = "";
+        // <|start_header_id|>assistant<|end_header_id|> 다음부터 다음 "assistant" 단어 전까지 추출
+        String startTag = "<|start_header_id|>assistant<|end_header_id|>";
+        int startIndex = rawAnswer.indexOf(startTag);
+
+        if (startIndex == -1) {
+            return rawAnswer.trim(); // 태그가 없으면 전체 텍스트 반환
         }
 
-        // Python: m = re.search(r"\<\|start_header_id\>assistant\<\|end_header_id\>(.*?)\<\|eot_id\>", raw, re.DOTALL)
-        Pattern pattern = Pattern.compile(
-                "<\\|start_header_id\\>assistant<\\|end_header_id\\>(.*?)<\\|eot_id\\>",
-                Pattern.DOTALL
-        );
-        Matcher matcher = pattern.matcher(raw);
+        // 시작 태그 다음부터 시작
+        int contentStart = startIndex + startTag.length();
+        String remaining = rawAnswer.substring(contentStart);
 
-        String ans;
-        // Python: if m: ans = m.group(1).strip() else: ans = raw.strip()
-        if (matcher.find()) {
-            ans = matcher.group(1).trim();
+        // 다음 "assistant" 단어를 찾기
+        int nextAssistantIndex = remaining.indexOf("assistant");
+
+        String answer;
+        if (nextAssistantIndex != -1) {
+            answer = remaining.substring(0, nextAssistantIndex).trim();
         } else {
-            ans = raw.trim();
+            answer = remaining.trim();
         }
 
-        // Python: ans = re.sub(r"\<\|.*?\|\>", "", ans).strip()
-        ans = ans.replaceAll("<\\|.*?\\|>", "").trim();
+        // 기타 태그들 제거
+        answer = answer.replaceAll("<\\|.*?\\|>", "").trim();
 
-        // Python: if ans.lower().count("assistant") >= 4: return "제공된 답변이 없습니다."
-        String lowerAns = ans.toLowerCase();
+        // Check if "assistant" appears 4 or more times (case insensitive)
+        String lowerAns = answer.toLowerCase();
         int assistantCount = 0;
         int index = 0;
         while ((index = lowerAns.indexOf("assistant", index)) != -1) {
@@ -412,28 +415,29 @@ public class InferenceService {
             return "제공된 답변이 없습니다.";
         }
 
-        // Python: if not ans or ans == prev_answer.strip(): return "제공된 답변이 없습니다."
-        if (ans.isEmpty() || ans.equals(prevAnswer.trim())) {
+        // Check if answer is empty or same as previous answer
+        String trimmedPrevAnswer = (prevAnswer != null) ? prevAnswer.trim() : "";
+        if (answer.isEmpty() || answer.equals(trimmedPrevAnswer)) {
             return "제공된 답변이 없습니다.";
         }
 
-        // Python: if len(ans) >= 500: ...
-        if (ans.length() >= 500) {
-            // Python: sentences = re.split(r'(?<=\.)', ans)
-            String[] sentences = ans.split("(?<=\\.)");
+        // Truncate if length >= 500
+        if (answer.length() >= 500) {
+            String[] sentences = answer.split("(?<=\\.)");
+            StringBuilder result = new StringBuilder();
 
-            // Python: if sentences and not sentences[-1].strip().endswith('.'):
-            if (sentences.length > 0 && !sentences[sentences.length - 1].trim().endsWith(".")) {
-                // Python: sentences = sentences[:-1]
-                sentences = Arrays.copyOf(sentences, sentences.length - 1);
+            for (int i = 0; i < sentences.length; i++) {
+                // Skip the last sentence if it doesn't end with a period
+                if (i == sentences.length - 1 && !sentences[i].trim().endsWith(".")) {
+                    break;
+                }
+                result.append(sentences[i]);
             }
 
-            // Python: ans = ''.join(sentences).strip()
-            ans = String.join("", sentences).trim();
+            answer = result.toString().trim();
         }
 
-        // Python: return ans
-        return ans;
+        return answer;
     }
 
     private void loadStariaEmbeddings() throws IOException {

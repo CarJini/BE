@@ -68,7 +68,6 @@ public class MaintenanceItemService {
 
         maintenanceItem = maintenanceItemRepository.save(maintenanceItem);
 
-        // 🔥 여기 추가
         updateProgress(
                 carOwner.getNowKm() + carOwner.getStartKm(),
                 carOwner.getStartDate(),
@@ -162,7 +161,7 @@ public class MaintenanceItemService {
 
         // 3. 기간 기준 계산
         Long remainingDays = item.getReplacementCycle() != null
-                ? ChronoUnit.DAYS.between(today, lastReplacementDate.plusMonths(item.getReplacementCycle()))
+                ? Math.max(0, ChronoUnit.DAYS.between(today, lastReplacementDate.plusMonths(item.getReplacementCycle())))
                 : Long.MAX_VALUE;
 
         // 4. 진행률, 상태 계산

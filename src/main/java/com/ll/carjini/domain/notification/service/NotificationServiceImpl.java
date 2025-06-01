@@ -66,13 +66,13 @@ public class NotificationServiceImpl implements NotificationService {
             try {
                 com.google.firebase.messaging.Notification firebaseNotification =
                         com.google.firebase.messaging.Notification.builder()
-                                .setTitle("차량 유지보수 알림")
+                                .setTitle("시스템 알람")
                                 .setBody(message)
                                 .build();
 
                 Message fcmMessage = Message.builder()
                         .setNotification(firebaseNotification)
-                        .putData("type", "MAINTENANCE_ALARM")
+                        .putData("type", "SYSTEM_ALARM")
                         .putData("time", String.valueOf(System.currentTimeMillis()))
                         .setToken(member.getFcmToken())
                         .build();
@@ -85,7 +85,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         // 알림 저장은 항상 수행
-        saveSystemNotification(member, "차량 유지보수 알림", message, Notification.NotificationType.SYSTEM);
+        saveSystemNotification(member, "시스템 알림", message, Notification.NotificationType.SYSTEM);
     }
 
 
@@ -168,7 +168,7 @@ public class NotificationServiceImpl implements NotificationService {
     private NotificationResponse convertToDto(Notification notification) {
         return NotificationResponse.builder()
                 .id(notification.getId())
-                .carId(notification.getMaintenanceItem().getCarOwner().getId())
+                .carId(notification.getMaintenanceItem() != null ? notification.getMaintenanceItem().getCarOwner().getId() : null)
                 .title(notification.getTitle())
                 .message(notification.getMessage())
                 .type(notification.getType().name())

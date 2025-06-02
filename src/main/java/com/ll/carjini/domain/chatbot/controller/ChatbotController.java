@@ -19,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -47,24 +48,21 @@ public class ChatbotController {
             @PathVariable Long carOwnerId,
             @RequestBody ChatbotRequest request) {
         try {
-            // 사용자 메시지 저장
             log.info("Received chat request: {}", request);
             Chat userChat = chatbotService.saveUserMessageToRedis(carOwnerId, request);
 
-            // 최근 대화 히스토리 가져오기
             List<Chat> history = redisChatService.getRecentChats(carOwnerId, 3);
             Long carId = chatbotService.getCarIdByOwnerId(carOwnerId);
             log.info("Retrieved chat history for car owner {}: {}", carOwnerId, history);
-            // AI 답변 생성
+
             String answer = "";
             if (carId.equals(1L)) {
                 answer = inferenceService.processStariaQuery(request.getMessage(), history);
-            }else{
+            } else {
                 answer = inferenceService.processGrandeurQuery(request.getMessage(), history);
             }
             log.info("Chatbot response created: {}", answer);
 
-            // 봇 답변 저장
             Chat botChat = chatbotService.saveBotMessageToRedis(carOwnerId, answer);
 
             ChatbotResponse chat = ChatbotResponse.builder()
@@ -73,14 +71,23 @@ public class ChatbotController {
                     .message(answer)
                     .createdAt(botChat.getCreatedAt())
                     .build();
-            log.info("Chatbot response created: {}", answer);
 
             return GlobalResponse.success(chat);
 
         } catch (Exception e) {
-            return GlobalResponse.error(ErrorCode.INTERNAL_SERVER_ERROR);
+            log.error("Error while processing chat request", e);
+
+            ChatbotResponse errorChat = ChatbotResponse.builder()
+                    .sender("BOT")
+                    .carOwnerId(carOwnerId)
+                    .message("서버가 응답하지 않습니다.")
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            return GlobalResponse.success(errorChat);
         }
     }
+
 
 
     @GetMapping("/history/{carOwnerId}")

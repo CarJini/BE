@@ -138,7 +138,7 @@ public class MaintenanceItemService {
 
 
     @Transactional
-    public void updateProgress(Long nowKm, LocalDate nowDate, LocalDate today, MaintenanceItem item) {
+    public void updateProgress(Long totalKm, LocalDate nowDate, LocalDate today, MaintenanceItem item) {
         MaintenanceHistory latestHistory = getLatestMaintenanceHistory(item);
 
         Long lastReplacementKm = (latestHistory != null && latestHistory.getReplacementKm() != null)
@@ -146,9 +146,7 @@ public class MaintenanceItemService {
                 : 0L;
 
         // 1. history와 nowDate 중 더 최신 날짜를 선택
-        LocalDate lastReplacementDateFromHistory = (latestHistory != null && latestHistory.getReplacementDate() != null)
-                ? latestHistory.getReplacementDate()
-                : item.getCarOwner().getStartDate();
+        LocalDate lastReplacementDateFromHistory = latestHistory.getReplacementDate();
 
         LocalDate lastReplacementDate = nowDate.isAfter(lastReplacementDateFromHistory)
                 ? nowDate
@@ -156,7 +154,7 @@ public class MaintenanceItemService {
 
         // 2. 거리 기준 계산
         Long remainingKm = item.getReplacementKm() != null
-                ? item.getReplacementKm() - (nowKm - lastReplacementKm)
+                ? item.getReplacementKm() - (totalKm - lastReplacementKm)
                 : null;
 
         // 3. 기간 기준 계산

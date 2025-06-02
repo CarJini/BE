@@ -81,16 +81,11 @@ public class InferenceService {
     }
 
     public String processStariaQuery(String query, List<Chat> history) throws Exception {
-        log.info("Processing Staria query: {}", query);
-
         try {
             String context = findStariaSimilarContext(query);
-            log.info("Found context for query '{}': {}", query, context);
             String rawAnswer = generateStariaAnswer(STARIA_SYSTEM_PROMPT, query, context, history);
-            log.info("Generated raw answer for query '{}': {}", query, rawAnswer);
             return postProcessAnswer(rawAnswer, "");
         } catch (Exception e) {
-            log.error("Error occurred while processing query", e);
             throw e;
         }
     }

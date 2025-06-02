@@ -5,18 +5,18 @@ import com.ll.carjini.domain.carOwner.repository.CarOwnerRepository;
 import com.ll.carjini.domain.maintenanceHistory.dto.MaintenanceHistoryRequest;
 import com.ll.carjini.domain.maintenanceHistory.dto.MaintenanceHistoryResponse;
 import com.ll.carjini.domain.maintenanceHistory.entity.MaintenanceHistory;
-import com.ll.carjini.domain.maintenanceHistory.event.MaintenanceHistoryEvent;
 import com.ll.carjini.domain.maintenanceHistory.repository.MaintenanceHistoryRepository;
 import com.ll.carjini.domain.maintenanceItem.entity.MaintenanceItem;
 import com.ll.carjini.domain.maintenanceItem.repository.MaintenanceItemRepository;
+import com.ll.carjini.domain.maintenanceItem.service.MaintenanceItemService;
 import com.ll.carjini.global.error.ErrorCode;
 import com.ll.carjini.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,9 +25,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MaintenanceHistoryService {
     private final MaintenanceItemRepository maintenanceItemRepository;
+    private final MaintenanceItemService maintenanceItemService;
     private final MaintenanceHistoryRepository maintenanceHistoryRepository;
     private final CarOwnerRepository carOwnerRepository;
-    private final ApplicationEventPublisher eventPublisher;
 
     public List<MaintenanceHistoryResponse> getMaintenanceHistories(Long userId, Long carOwnerId, Long maintenanceItemId) {
         MaintenanceItem maintenanceItem = maintenanceItemRepository.findById(maintenanceItemId)
@@ -79,7 +79,10 @@ public class MaintenanceHistoryService {
                 .build();
 
         maintenanceHistoryRepository.save(history);
-        eventPublisher.publishEvent(new MaintenanceHistoryEvent(carOwnerId));
+        maintenanceItemService.updateProgress(carOwner.getNowKm()+ carOwner.getStartKm(),
+                carOwner.getStartDate(),
+                dto.getReplacementDate(),
+                maintenanceItem);
     }
 
     @Transactional
@@ -102,13 +105,16 @@ public class MaintenanceHistoryService {
             MaintenanceItem newItem = maintenanceItemRepository.findById(maintenanceItemId)
                     .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
             history.setMaintenanceItem(newItem);
+            maintenanceItemService.updateProgress(carOwner.getNowKm() + carOwner.getStartKm(),
+                    carOwner.getStartDate(),
+                    dto.getReplacementDate(),
+                    newItem);
         }
 
         history.setReplacementDate(dto.getReplacementDate());
         history.setReplacementKm(dto.getReplacementKm());
 
         maintenanceHistoryRepository.save(history);
-        eventPublisher.publishEvent(new MaintenanceHistoryEvent(carOwnerId));
     }
 
     @Transactional
@@ -120,7 +126,7 @@ public class MaintenanceHistoryService {
             throw new CustomException(ErrorCode.ACCESS_DENIED);
         }
 
-       maintenanceItemRepository.findById(maintenanceItemId)
+        MaintenanceItem maintenanceItem = maintenanceItemRepository.findById(maintenanceItemId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
         MaintenanceHistory history = maintenanceHistoryRepository.findById(historyId)
@@ -131,6 +137,17 @@ public class MaintenanceHistoryService {
         }
 
         maintenanceHistoryRepository.delete(history);
-        eventPublisher.publishEvent(new MaintenanceHistoryEvent(carOwnerId));
+
+        LocalDate replacementDate = maintenanceHistoryRepository
+                .findTopByMaintenanceItemIdOrderByReplacementDateDescReplacementKmDesc(maintenanceItemId)
+                .map(MaintenanceHistory::getReplacementDate)
+                .orElse(carOwner.getStartDate());
+
+        maintenanceItemService.updateProgress(
+                carOwner.getNowKm(),
+                carOwner.getStartDate(),
+                replacementDate,
+                maintenanceItem
+        );
     }
 }

@@ -58,8 +58,8 @@ public class InferenceService {
     private Map<String, ValueSegment> grandeurValueMap;
 
 
-    private final String STARIA_SYSTEM_PROMPT = "당신은 현대자동차 스타리아 전문가입니다. 현대 그랜저와 관련된 모든 질문에 대해, 정확하고 친절하게 답변해야 합니다. 외부 지식이 있을 시, 해당 외부 지식을 참고하여 답변해 주세요.만약 외부 지식에 해당 질문에 대한 정보가 없더라도, 당신이 보유한 일반 지식을 바탕으로 유용한 답변을 제공하십시오. 다만, 만약 일반 지식에도 명확한 답변이 없다면, '제공된 내용에 없습니다.'라고 답변해 주세요.";
-    private final String GRANDEUR_SYSTEM_PROMPT = "당신은 현대자동차 그랜저 전문가입니다. 현대 그랜저와 관련된 모든 질문에 대해, 정확하고 친절하게 답변해야 합니다. 외부 지식이 있을 시, 해당 외부 지식을 참고하여 답변해 주세요.만약 외부 지식에 해당 질문에 대한 정보가 없더라도, 당신이 보유한 일반 지식을 바탕으로 유용한 답변을 제공하십시오. 다만, 만약 일반 지식에도 명확한 답변이 없다면, '제공된 내용에 없습니다.'라고 답변해 주세요.";
+    private final String STARIA_SYSTEM_PROMPT = "당신은 현대자동차 스타리아 전문가입니다. 현대 스타리아와 관련된 모든 질문에 대해, 정확하고 친절하게 답변해야 합니다. 외부 지식이 있을 시, 해당 외부 지식을 참고하여 답변해 주세요. 만약 외부 지식에 해당 질문에 대한 정보가 없더라도, 당신이 보유한 일반 지식을 바탕으로 유용한 답변을 제공하십시오. 다만, 만약 일반 지식에도 명확한 답변이 없다면, \"제공된 내용에 없습니다.\"라고 답변해 주세요.";
+    private final String GRANDEUR_SYSTEM_PROMPT = "당신은 현대자동차 그랜저 전문가입니다. 현대 그랜저와 관련된 모든 질문에 대해, 정확하고 친절하게 답변해야 합니다. 외부 지식이 있을 시, 해당 외부 지식을 참고하여 답변해 주세요.만약 외부 지식에 해당 질문에 대한 정보가 없더라도, 당신이 보유한 일반 지식을 바탕으로 유용한 답변을 제공하십시오. 다만, 만약 일반 지식에도 명확한 답변이 없다면, \"제공된 내용에 없습니다.\"라고 답변해 주세요.";
 
     public InferenceService(RestTemplate restTemplate, ObjectMapper objectMapper) {
         this.restTemplate = restTemplate;
@@ -121,7 +121,7 @@ public class InferenceService {
                 }
             }
 
-            if (bestScore >= 0.75 && bestKey != null) {
+            if (bestScore >= 0.65 && bestKey != null) {
                 return extractStariaContextFromKey(bestKey);
             }
 
@@ -150,7 +150,7 @@ public class InferenceService {
                 }
             }
 
-            if (bestScore >= 0.75 && bestKey != null) {
+            if (bestScore >= 0.65 && bestKey != null) {
                 return extractGrandeurContextFromKey(bestKey);
             }
 
@@ -234,22 +234,35 @@ public class InferenceService {
     }
 
 
-
-
     private double[] getGrandeurQueryEmbedding(String text) {
         HttpHeaders headers = createGrandeurHeaders();
         EmbedRequest request = new EmbedRequest(text);
         HttpEntity<EmbedRequest> entity = new HttpEntity<>(request, headers);
 
-        Map<String, double[]> response = restTemplate.exchange(
+        ParameterizedTypeReference<List<List<Double>>> typeRef =
+                new ParameterizedTypeReference<>() {};
+
+        List<List<Double>> response = restTemplate.exchange(
                 grandeurEmbedApiUrl,
                 HttpMethod.POST,
                 entity,
-                new ParameterizedTypeReference<Map<String, double[]>>() {}
+                typeRef
         ).getBody();
 
-        double[] embedding = response.values().iterator().next(); // 첫 번째 값 꺼내기
-        return normalizeEmbedding(embedding);
+        if (response == null || response.isEmpty()) {
+            throw new RuntimeException("Empty embedding response from API");
+        }
+
+        // Python의 .squeeze()와 동일 - 첫 번째 임베딩 벡터 추출
+        List<Double> embeddingList = response.get(0);
+
+        // List<Double> → double[] 변환 (Python의 .cpu().numpy()와 동일)
+        double[] q_emb = embeddingList.stream()
+                .mapToDouble(Double::doubleValue)
+                .toArray();
+
+        // Python의 normalized_embedding(q_emb).astype("float32")와 동일
+        return normalizeEmbedding(q_emb);
     }
 
     private String generateStariaAnswer(String systemPrompt, String query, String context, List<Chat> conversationHistory) throws InterruptedException {
@@ -475,7 +488,7 @@ public class InferenceService {
 
     private void loadGrandeurEmbeddings() throws IOException {
         try {
-            ClassPathResource resource = new ClassPathResource("staria_qa_and_rag_keys_embed.json");
+            ClassPathResource resource = new ClassPathResource("grandeur_qa_and_rag_keys_embed.json");
             grandeurEmbeddingMap = objectMapper.readValue(resource.getInputStream(),
                     new TypeReference<Map<String, double[]>>() {});
         } catch (Exception e) {
@@ -486,7 +499,7 @@ public class InferenceService {
 
     private void loadGrandeurValueSegments() throws IOException {
         try {
-            ClassPathResource resource = new ClassPathResource("staria_qa_and_rag_values.json");
+            ClassPathResource resource = new ClassPathResource("grandeur_qa_and_rag_values.json");
             grandeurValueMap = objectMapper.readValue(resource.getInputStream(),
                     new TypeReference<Map<String, ValueSegment>>() {});
         } catch (Exception e) {

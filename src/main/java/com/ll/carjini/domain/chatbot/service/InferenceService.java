@@ -28,8 +28,11 @@ import java.util.regex.Pattern;
 @Slf4j
 public class InferenceService {
 
-    @Value("${app.config.hf-hub-token}")
-    private String hfHubToken;
+    @Value("${app.config.staria-hf-hub-token}")
+    private String stariaHfHubToken;
+
+    @Value("${app.config.grandeur-hf-hub-token}")
+    private String grandeurHfHubToken;
 
     @Value("${app.config.staria-api-url}")
     private String stariaApiUrl;
@@ -200,7 +203,7 @@ public class InferenceService {
     }
 
     private double[] getStariaQueryEmbedding(String text) {
-        HttpHeaders headers = createHeaders();
+        HttpHeaders headers = createStariaHeaders();
         EmbedRequest request = new EmbedRequest(text);
         HttpEntity<EmbedRequest> entity = new HttpEntity<>(request, headers);
 
@@ -234,7 +237,7 @@ public class InferenceService {
 
 
     private double[] getGrandeurQueryEmbedding(String text) {
-        HttpHeaders headers = createHeaders();
+        HttpHeaders headers = createGrandeurHeaders();
         EmbedRequest request = new EmbedRequest(text);
         HttpEntity<EmbedRequest> entity = new HttpEntity<>(request, headers);
 
@@ -254,7 +257,7 @@ public class InferenceService {
         try {
             String fullPrompt = buildPrompt(systemPrompt, query, context, conversationHistory);
 
-            HttpHeaders headers = createHeaders();
+            HttpHeaders headers = createStariaHeaders();
             GenerateRequest.Parameters parameters = new GenerateRequest.Parameters();
             GenerateRequest request = new GenerateRequest(fullPrompt, parameters);
             HttpEntity<GenerateRequest> entity = new HttpEntity<>(request, headers);
@@ -272,7 +275,7 @@ public class InferenceService {
         try {
             String fullPrompt = buildPrompt(systemPrompt, query, context, conversationHistory);
 
-            HttpHeaders headers = createHeaders();
+            HttpHeaders headers = createGrandeurHeaders();
             GenerateRequest.Parameters parameters = new GenerateRequest.Parameters();
             GenerateRequest request = new GenerateRequest(fullPrompt, parameters);
             HttpEntity<GenerateRequest> entity = new HttpEntity<>(request, headers);
@@ -284,11 +287,19 @@ public class InferenceService {
         }
     }
 
-    private HttpHeaders createHeaders() {
+    private HttpHeaders createStariaHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
-        headers.setBearerAuth(hfHubToken);
+        headers.setBearerAuth(stariaHfHubToken);
+        return headers;
+    }
+
+    private HttpHeaders createGrandeurHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.setBearerAuth(grandeurHfHubToken);
         return headers;
     }
 

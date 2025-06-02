@@ -17,7 +17,7 @@ public class GenerateRequest {
     @NoArgsConstructor
     public static class Parameters {
         @JsonProperty("max_new_tokens")
-        private int maxNewTokens = 512;
+        private int maxNewTokens = 200;
         private double temperature = 0.7;
         @JsonProperty("top_p")
         private double topP = 0.8;

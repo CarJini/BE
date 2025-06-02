@@ -446,7 +446,7 @@ public class InferenceService {
         }
 
         // Truncate if length >= 500
-        if (answer.length() >= 500) {
+        if (answer.length() >= 190) {
             String[] sentences = answer.split("(?<=\\.)");
             StringBuilder result = new StringBuilder();
 

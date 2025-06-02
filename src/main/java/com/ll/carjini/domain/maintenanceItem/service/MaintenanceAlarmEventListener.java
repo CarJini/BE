@@ -28,7 +28,6 @@ public class MaintenanceAlarmEventListener {
         String message = createAlarmMessage(item, alarmType, currentValue, thresholdValue);
 
          notificationService.sendMaintenanceNotification(item.getCarOwner().getMember(), message, item);
-
     }
 
     private String createAlarmMessage(MaintenanceItem item, String alarmType,

@@ -145,29 +145,26 @@ public class MaintenanceItemService {
                 ? latestHistory.getReplacementKm()
                 : 0L;
 
-        // 1. history와 nowDate 중 더 최신 날짜를 선택
-        LocalDate lastReplacementDateFromHistory = latestHistory.getReplacementDate();
+        LocalDate lastReplacementDateFromHistory = (latestHistory != null && latestHistory.getReplacementDate() != null)
+                ? latestHistory.getReplacementDate()
+                : item.getCarOwner().getStartDate();
 
         LocalDate lastReplacementDate = nowDate.isAfter(lastReplacementDateFromHistory)
                 ? nowDate
                 : lastReplacementDateFromHistory;
 
-        // 2. 거리 기준 계산
         Long remainingKm = item.getReplacementKm() != null
                 ? item.getReplacementKm() - (totalKm - lastReplacementKm)
                 : null;
 
-        // 3. 기간 기준 계산
         Long remainingDays = item.getReplacementCycle() != null
                 ? Math.max(0, ChronoUnit.DAYS.between(today, lastReplacementDate.plusMonths(item.getReplacementCycle())))
                 : Long.MAX_VALUE;
 
-        // 4. 진행률, 상태 계산
         int progressKm = calculateKmProgress(item, remainingKm);
         int progressDays = calculateDayProgress(item, remainingDays);
         String newStatus = determineStatus(progressKm, progressDays);
 
-        // 5. 알람 처리
         if ("점검 필요".equals(newStatus) && item.isAlarm()) {
             notificationService.sendMaintenanceNotification(
                     item.getCarOwner().getMember(),
@@ -176,7 +173,6 @@ public class MaintenanceItemService {
             );
         }
 
-        // 6. 저장
         item.setRemainingKm(remainingKm);
         item.setRemainingDays(remainingDays);
         item.setProgressKm(progressKm);

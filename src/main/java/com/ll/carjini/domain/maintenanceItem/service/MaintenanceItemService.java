@@ -39,6 +39,7 @@ public class MaintenanceItemService {
     private final CarOwnerRepository carOwnerRepository;
     private final NotificationRepository notificationRepository;
     private final NotificationService notificationService;
+    private final MaintenanceHistoryRepository maintenanceHistoryRepository;
 
     private CarOwner validateCarOwnerAccess(Long carOwnerId, Long memberId) {
         CarOwner carOwner = carOwnerRepository.findByIdWithMember(carOwnerId)
@@ -103,13 +104,14 @@ public class MaintenanceItemService {
     @Transactional
     public boolean delete(Long carOwnerId, Long memberId, Long id) {
         validateCarOwnerAccess(carOwnerId, memberId);
-
-        if (maintenanceItemRepository.existsById(id)) {
-            maintenanceItemRepository.deleteById(id);
-            notificationRepository.deleteByMaintenanceItem_Id(id);
-            return true;
-        }
-        return false;
+        return maintenanceItemRepository.findById(id)
+                .map(item -> {
+                    maintenanceHistoryRepository.deleteByMaintenanceItem(item);
+                    notificationRepository.deleteByMaintenanceItem_Id(id);
+                    maintenanceItemRepository.delete(item);
+                    return true;
+                })
+                .orElse(false);
     }
 
     public Page<MaintenanceItemDetailResponse> getMaintenanceItem(Long carOwnerId, Long memberId, Pageable pageable) {

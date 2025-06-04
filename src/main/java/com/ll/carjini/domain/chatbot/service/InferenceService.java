@@ -402,72 +402,61 @@ public class InferenceService {
             return "제공된 답변이 없습니다.";
         }
 
-        // 0) system / user 블록 제거
-        rawAnswer = removeBlock(rawAnswer, "system");
-        rawAnswer = removeBlock(rawAnswer, "user");
+        String ans;
 
-        // 1) assistant 블록 추출 (기존 방식 유지)
-        String startTag = "<|start_header_id|>assistant<|end_header_id|>";
-        int startIndex = rawAnswer.indexOf(startTag);
-
-        if (startIndex == -1) {
-            return rawAnswer.trim(); // 태그가 없으면 전체 텍스트 반환
+        // 1) <|start_header_id|>assistant<|end_header_id|> … <|eot_id|> 사이 추출
+        Pattern pattern = Pattern.compile(
+                "<\\|start_header_id\\>assistant<\\|end_header_id\\>(.*?)<\\|eot_id\\>",
+                Pattern.DOTALL | Pattern.CASE_INSENSITIVE
+        );
+        Matcher matcher = pattern.matcher(rawAnswer);
+        if (matcher.find()) {
+            ans = matcher.group(1).trim();
+        } else {
+            // 2) 태그가 없으면 <|start_header_id|>assistant<|end_header_id|> 뒤부터
+            String tag = "<|start_header_id|>assistant<|end_header_id|>";
+            int pos = rawAnswer.toLowerCase().indexOf(tag.toLowerCase());
+            ans = (pos != -1)
+                    ? rawAnswer.substring(pos + tag.length()).trim()
+                    : rawAnswer.trim();
         }
 
-        int contentStart = startIndex + startTag.length();
-        String remaining = rawAnswer.substring(contentStart);
+        // 3) 남아 있는 <|…|> 토큰 제거
+        ans = ans.replaceAll("<\\|.*?\\|>", "").trim();
 
-        int nextAssistantIndex = remaining.indexOf("assistant");
-        String answer = (nextAssistantIndex != -1)
-                ? remaining.substring(0, nextAssistantIndex).trim()
-                : remaining.trim();
+        // 4) 뒤에 붙은 user/system/assistant 블록 키워드부터 자르기
+        ans = ans.split("(?i)\\b(assistant|user|system)\\b")[0].trim();
 
-        // 2) <|...|> 토큰 제거
-        answer = answer.replaceAll("<\\|.*?\\|>", "").trim();
+        // 5) 해당 단어 자체도 제거
+        ans = ans.replaceAll("(?i)\\b(assistant|user|system)\\b", "").trim();
 
-        // 3) "assistant", "user", "system" 단어 자체 제거 (대소문자 무시)
-        answer = answer.replaceAll("(?i)\\b(assistant|user|system)\\b", "").trim();
+        // 6) "assistant" 반복 횟수 검사
+        int assistantCount = 0;
+        int index = 0;
+        String lower = ans.toLowerCase();
+        while ((index = lower.indexOf("assistant", index)) != -1) {
+            assistantCount++;
+            index += "assistant".length();
+        }
 
-        // 4) 너무 길면 문장 단위로 자르기
-        if (answer.length() >= 190) {
-            String[] sentences = answer.split("(?<=\\.)");
+        if (assistantCount >= 4 || ans.isEmpty()) {
+            return "제공된 답변이 없습니다.";
+        }
+
+        // 7) 너무 길면 문장 단위로 자르기 (마지막 문장이 마침표로 안 끝나면 제거)
+        if (ans.length() >= 190) {
+            String[] sentences = ans.split("(?<=\\.)");
             StringBuilder result = new StringBuilder();
-
             for (int i = 0; i < sentences.length; i++) {
                 if (i == sentences.length - 1 && !sentences[i].trim().endsWith(".")) {
                     break;
                 }
                 result.append(sentences[i]);
             }
-
-            answer = result.toString().trim();
+            ans = result.toString().trim();
         }
 
-        // 5) assistant 단어가 너무 많으면 무시
-        String lowerAns = answer.toLowerCase();
-        int assistantCount = 0;
-        int index = 0;
-        while ((index = lowerAns.indexOf("assistant", index)) != -1) {
-            assistantCount++;
-            index += "assistant".length();
-        }
-        if (assistantCount >= 4) {
-            return "제공된 답변이 없습니다.";
-        }
-
-        // 6) 이전 답변과 동일하거나 빈 문자열이면 무시
-        String trimmedPrevAnswer = (prevAnswer != null) ? prevAnswer.trim() : "";
-        if (answer.isEmpty() || answer.equals(trimmedPrevAnswer)) {
-            return "제공된 답변이 없습니다.";
-        }
-
-        return answer;
-    }
-
-    // 블록 제거 함수 추가
-    private String removeBlock(String input, String role) {
-        String regex = "<\\|start_header_id\\>" + role + "<\\|end_header_id\\>(.*?)<\\|eot_id\\>";
-        return input.replaceAll("(?is)" + regex, ""); // DOTALL + CASE_INSENSITIVE
+        return ans.isEmpty() ? "제공된 답변이 없습니다." : ans;
     }
 
     private void loadStariaEmbeddings() throws IOException {

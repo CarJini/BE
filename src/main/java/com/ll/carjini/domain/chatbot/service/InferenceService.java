@@ -83,6 +83,7 @@ public class InferenceService {
     public String processStariaQuery(String query, List<Chat> history) throws Exception {
         try {
             String context = findStariaSimilarContext(query);
+            log.info("context", context);
             String rawAnswer = generateStariaAnswer(STARIA_SYSTEM_PROMPT, query, context, history);
             return postProcessAnswer(rawAnswer, "");
         } catch (Exception e) {

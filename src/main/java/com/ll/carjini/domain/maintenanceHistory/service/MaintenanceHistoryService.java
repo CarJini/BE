@@ -79,6 +79,7 @@ public class MaintenanceHistoryService {
                 .build();
 
         maintenanceHistoryRepository.save(history);
+        maintenanceHistoryRepository.flush();
         maintenanceItemService.updateProgress(carOwner.getNowKm()+ carOwner.getStartKm(),
                 carOwner.getStartDate(),
                 dto.getReplacementDate(),
@@ -101,20 +102,17 @@ public class MaintenanceHistoryService {
             throw new CustomException(ErrorCode.ENTITY_NOT_FOUND);
         }
 
-        if (!history.getMaintenanceItem().getId().equals(maintenanceItemId)) {
-            MaintenanceItem newItem = maintenanceItemRepository.findById(maintenanceItemId)
+        MaintenanceItem item = maintenanceItemRepository.findById(maintenanceItemId)
                     .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
-            history.setMaintenanceItem(newItem);
-            maintenanceItemService.updateProgress(carOwner.getNowKm() + carOwner.getStartKm(),
-                    carOwner.getStartDate(),
-                    dto.getReplacementDate(),
-                    newItem);
-        }
-
         history.setReplacementDate(dto.getReplacementDate());
         history.setReplacementKm(dto.getReplacementKm());
 
         maintenanceHistoryRepository.save(history);
+        maintenanceHistoryRepository.flush();
+        maintenanceItemService.updateProgress(carOwner.getNowKm() + carOwner.getStartKm(),
+                carOwner.getStartDate(),
+                dto.getReplacementDate(),
+                item);
     }
 
     @Transactional
@@ -142,7 +140,7 @@ public class MaintenanceHistoryService {
                 .findTopByMaintenanceItemIdOrderByReplacementDateDescReplacementKmDesc(maintenanceItemId)
                 .map(MaintenanceHistory::getReplacementDate)
                 .orElse(carOwner.getStartDate());
-
+        maintenanceHistoryRepository.flush();
         maintenanceItemService.updateProgress(
                 carOwner.getNowKm(),
                 carOwner.getStartDate(),

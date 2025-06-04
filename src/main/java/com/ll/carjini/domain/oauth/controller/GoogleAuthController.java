@@ -69,52 +69,6 @@ public class GoogleAuthController {
         response.sendRedirect(googleAuthUrl);
     }
 
-    // ✅ Android (Mobile) 전용 ID Token 처리
-    @PostMapping("/api/auth/google/mobile")
-    @ResponseBody
-    public ResponseEntity<?> authenticateMobileUser(@RequestBody Map<String, String> request) {
-        try {
-            String idToken = request.get("idToken");
-
-            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
-                    new NetHttpTransport(),
-                    JacksonFactory.getDefaultInstance()
-            ).setAudience(googleProperties.getClientIds())
-                    .build();
-
-            GoogleIdToken token = verifier.verify(idToken);
-            if (token == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid ID token");
-            }
-
-            GoogleIdToken.Payload payload = token.getPayload();
-            Map<String, Object> attributes = new HashMap<>(payload);
-
-            OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfo.of("google", attributes);
-            Member member = customOAuth2UserService.getOrSave(oAuth2UserInfo);
-
-            PrincipalDetails principalDetails = new PrincipalDetails(member, attributes, "sub");
-            Authentication authentication = new OAuth2AuthenticationToken(
-                    principalDetails,
-                    principalDetails.getAuthorities(),
-                    "google"
-            );
-
-            String accessToken = tokenProvider.generateAccessToken(authentication);
-            String refreshToken = tokenProvider.generateRefreshToken(authentication, accessToken);
-
-            Map<String, String> tokens = new HashMap<>();
-            tokens.put("accessToken", accessToken);
-            tokens.put("refreshToken", refreshToken);
-
-            return ResponseEntity.ok(tokens);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Authentication failed");
-        }
-    }
-
     @GetMapping("/auth/google/redirect")
     public void googleCallback(@RequestParam("code") String code,
                                @RequestParam("state") String state,

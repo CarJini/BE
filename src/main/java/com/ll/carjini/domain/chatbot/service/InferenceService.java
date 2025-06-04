@@ -70,6 +70,7 @@ public class InferenceService {
 
     @PostConstruct
     public void initialize() {
+        log.info("initialize() called");
         try {
             loadStariaEmbeddings();
             loadStariaValueSegments();
@@ -83,7 +84,8 @@ public class InferenceService {
     public String processStariaQuery(String query, List<Chat> history) throws Exception {
         try {
             String context = findStariaSimilarContext(query);
-            log.info("context", context);
+            log.info("context: {}", context);
+
             String rawAnswer = generateStariaAnswer(STARIA_SYSTEM_PROMPT, query, context, history);
             return postProcessAnswer(rawAnswer, "");
         } catch (Exception e) {
@@ -94,12 +96,14 @@ public class InferenceService {
 
     public String processGrandeurQuery(String query, List<Chat> history) throws Exception {
         String context = findGrandeurSimilarContext(query);
+        log.info("context: {}", context);
         String rawAnswer = generateGrandeurAnswer(GRANDEUR_SYSTEM_PROMPT, query, context, history);
         return postProcessAnswer(rawAnswer, "");
     }
 
     private String findStariaSimilarContext(String query) throws Exception {
         if (stariaEmbeddingMap == null || stariaEmbeddingMap.isEmpty()) {
+            log.info("Staria embedding map is empty or not loaded.");
             return "";
         }
 
@@ -134,6 +138,7 @@ public class InferenceService {
 
         try {
             double[] queryEmbedding = getGrandeurQueryEmbedding(query);
+            log.info("queryEmbedding: {}", Arrays.toString(queryEmbedding));
 
             String bestKey = null;
             double bestScore = 0.0;
@@ -463,8 +468,10 @@ public class InferenceService {
     private void loadStariaEmbeddings() throws IOException {
         try {
             ClassPathResource resource = new ClassPathResource("staria_qa_and_rag_keys_embed.json");
+            log.info("Loading staria embeddings from: {}", resource.getPath());
             stariaEmbeddingMap = objectMapper.readValue(resource.getInputStream(),
                     new TypeReference<Map<String, double[]>>() {});
+            log.info("Loaded Staria embeddings: {}", stariaEmbeddingMap.size());
         } catch (Exception e) {
             System.err.println("Could not load embeddings file: " + e.getMessage());
             stariaEmbeddingMap = Map.of();
@@ -474,8 +481,11 @@ public class InferenceService {
     private void loadStariaValueSegments() throws IOException {
         try {
             ClassPathResource resource = new ClassPathResource("staria_qa_and_rag_values.json");
+            log.info("Loading staria value segments from: {}", resource.getPath());
             stariaValueMap = objectMapper.readValue(resource.getInputStream(),
                     new TypeReference<Map<String, ValueSegment>>() {});
+            log.debug("DEBUG: Loaded Staria value segments: {}", stariaValueMap.size());
+
         } catch (Exception e) {
             System.err.println("Could not load value segments file: " + e.getMessage());
             stariaValueMap = Map.of();
@@ -485,6 +495,7 @@ public class InferenceService {
     private void loadGrandeurEmbeddings() throws IOException {
         try {
             ClassPathResource resource = new ClassPathResource("grandeur_qa_and_rag_keys_embed.json");
+            log.info("Loading grandeur embeddings from: {}", resource.getPath());
             grandeurEmbeddingMap = objectMapper.readValue(resource.getInputStream(),
                     new TypeReference<Map<String, double[]>>() {});
         } catch (Exception e) {
